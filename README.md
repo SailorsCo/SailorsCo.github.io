@@ -1,48 +1,45 @@
-<!DOCTYPEs html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Search Button</title>
+    <title>Color Picker</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: transparent;
+            transition: background-color 0.5s;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            padding: 20px;
         }
-        button {
-            font-size: 18px;
+        .color-btn {
             padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
+            margin: 5px;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
+            font-size: 16px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <button onclick="startVoiceSearch()">Click to Speak</button>
+    <h2>Select a Background Color</h2>
+    <button class="color-btn" style="background-color: blue;" onclick="changeColor('blue')">Blue</button>
+    <button class="color-btn" style="background-color: black; color: white;" onclick="changeColor('black')">Black</button>
+    <button class="color-btn" style="background-color: green;" onclick="changeColor('green')">Green</button>
+    <button class="color-btn" style="background-color: white; border: 1px solid #ccc;" onclick="changeColor('white')">White</button>
+    <button class="color-btn" style="background-color: orange;" onclick="changeColor('orange')">Orange</button>
+
     <script>
-        function startVoiceSearch() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'en-US';
-            recognition.start();
-            
-            recognition.onresult = function(event) {
-                const speech = event.results[0][0].transcript;
-                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(speech)}`;
-            };
-            
-            recognition.onerror = function(event) {
-                alert('Error occurred: ' + event.error);
-            };
+        function changeColor(color) {
+            document.body.style.backgroundColor = color;
+            localStorage.setItem('bgColor', color);
         }
+
+        // Set default color or retrieve from localStorage
+        document.addEventListener("DOMContentLoaded", function () {
+            const savedColor = localStorage.getItem('bgColor') || 'black';
+            document.body.style.backgroundColor = savedColor;
+        });
     </script>
 </body>
 </html>
