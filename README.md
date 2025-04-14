@@ -65,7 +65,7 @@
     }
 
     function startTimer() {
-      setTimeout(showPopup, 60000); // 60000ms = 1 minute
+      setTimeout(showPopup, 10000); // 10000ms = 1 minute
     }
 
     // Start the initial timer
