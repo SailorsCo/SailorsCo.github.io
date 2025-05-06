@@ -10,7 +10,7 @@
   <h1>10-Second Timer</h1>
   <p id="timer">10</p>
 
-  <audio id="endSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+  <audio id="endSound" src="https://www.soundjay.com/buttons/sounds/beep-01a.mp3" preload="auto"></audio>
 
   <script>
     let timeLeft = 10;
