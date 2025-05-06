@@ -1,75 +1,31 @@
-<!DOCTYPE html>yyy
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Congrats Popup</title>
-  <style>
-    #popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: white;
-      border: 2px solid #ccc;
-      padding: 30px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      z-index: 1000;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    #overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 999;
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #45a049;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10-Second Timer</title>
 </head>
 <body>
 
-  <div id="overlay"></div>
-  <div id="popup">
-    <h2>Congrats!</h2>
-    <p>You made it to 1 minute 🎉</p>
-    <button onclick="closePopup()">Thanks</button>
-  </div>
+  <h1>10-Second Timer</h1>
+  <p id="timer">10</p>
+
+  <audio id="endSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
 
   <script>
-    function showPopup() {
-      document.getElementById('overlay').style.display = 'block';
-      document.getElementById('popup').style.display = 'block';
-    }
+    let timeLeft = 10;
+    const timerElement = document.getElementById('timer');
+    const sound = document.getElementById('endSound');
 
-    function closePopup() {
-      document.getElementById('overlay').style.display = 'none';
-      document.getElementById('popup').style.display = 'none';
-      startTimer(); // restart the timer after closing
-    }
+    const countdown = setInterval(function() {
+      timeLeft--;
+      timerElement.innerText = timeLeft;
 
-    function startTimer() {
-      setTimeout(showPopup, 10000); // 10000ms = 1 minute
-    }
-
-    // Start the initial timer
-    startTimer();
+      if (timeLeft <= 0) {
+        clearInterval(countdown);  // Stop the countdown
+        sound.play();  // Play the sound when the timer ends
+      }
+    }, 1000);
   </script>
 
 </body>
