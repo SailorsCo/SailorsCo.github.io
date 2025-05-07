@@ -1,32 +1,48 @@
-<!DOCTY11PE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>10-Second Timer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Search Button</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-
-  <h1>10-Second Timer</h1>
-  <p id="timer">10</p>
-
-  <audio id="endSound" src="https://www.soundjay.com/buttons/sounds/beep-01a.mp3" preload="auto"></audio>
-
-  <script>
-    let timeLeft = 10;
-    const timerElement = document.getElementById('timer');
-    const sound = document.getElementById('endSound');
-
-    const countdown = setInterval(function() {
-      timeLeft--;
-      timerElement.innerText = timeLeft;
-
-      if (timeLeft <= 0) {
-        clearInterval(countdown);  // Stop the countdown
-        sound.play();  // Play the sound when the timer ends
-      }
-    }, 1000);
-  </script>
-
+    <button onclick="startVoiceSearch()">Click to Speak</button>
+    <script>
+        function startVoiceSearch() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            recognition.start();
+            
+            recognition.onresult = function(event) {
+                const speech = event.results[0][0].transcript;
+                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(speech)}`;
+            };
+            
+            recognition.onerror = function(event) {
+                alert('Error occurred: ' + event.error);
+            };
+        }
+    </script>
 </body>
 </html>
