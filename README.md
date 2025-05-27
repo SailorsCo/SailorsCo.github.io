@@ -123,7 +123,7 @@
     </div>
 
     <div class="big-box" id="notes-box" style="display: none;">
-        DOUBLE TAP TO WRITE ANYTHING HERE LIKE INSTRUCTIONS OR DAILY SCEDUEL
+        DOUBLE TAP TO WRITE ANYTHING HERE LIKE INSTRUCTIONS OR DAILY SCHEDULE
     </div>
 
     <script>
