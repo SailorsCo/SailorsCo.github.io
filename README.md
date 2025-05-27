@@ -1,4 +1,4 @@
-<!DOCTYPE html>11
+<!DOCTYPE html>56
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -54,35 +54,49 @@
         .top-boxes {
             display: flex;
             justify-content: space-between;
-            margin: 20px auto;
-            max-width: 900px;
+            margin: 30px auto;
+            max-width: 1000px;
             padding: 0 20px;
+            gap: 20px;
         }
         .top-box {
             flex: 1;
-            margin: 0 10px;
             padding: 20px;
             text-align: center;
-            background-color: #f0f0f0;
-            border-radius: 10px;
+            background-color: #f9fafb;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             cursor: pointer;
-            min-height: 60px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .top-box:hover {
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
         }
         .top-box.editing {
-            background-color: #fff8dc;
+            background-color: #fff7ed;
+            border-color: #fb923c;
         }
         .big-box {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 20px auto;
-            padding: 0 20px;
-            background-color: #e8e8e8;
-            border-radius: 10px;
-            text-align: left;
+            padding: 30px;
+            background-color: #fefce8;
+            border: 2px dashed #fbbf24;
+            border-radius: 12px;
+            text-align: center;
             cursor: pointer;
-            min-height: 120px;
+            min-height: 150px;
+            font-size: 18px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .big-box:hover {
+            background-color: #fef9c3;
         }
         .big-box.editing {
-            background-color: #fff0e0;
+            background-color: #fff7ed;
+            border-color: #f97316;
         }
         @media (max-width: 768px) {
             .banner {
@@ -101,7 +115,6 @@
             }
             .top-box {
                 width: 100%;
-                margin: 10px 0;
             }
         }
     </style>
@@ -123,7 +136,7 @@
     </div>
 
     <div class="big-box" id="notes-box" style="display: none;">
-        DOUBLE TAP TO WRITE ANYTHING HERE LIKE INSTRUCTIONS OR DAILY SCHEDULE
+        DOUBLE TAP TO WRITE ANYTHING HERE LIKE INSTRUCTIONS OR DAILY SCEDUEL
     </div>
 
     <script>
