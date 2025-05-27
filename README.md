@@ -71,6 +71,19 @@
         .top-box.editing {
             background-color: #fff8dc;
         }
+        .big-box {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #e8e8e8;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            min-height: 120px;
+        }
+        .big-box.editing {
+            background-color: #fff0e0;
+        }
         @media (max-width: 768px) {
             .banner {
                 flex-direction: column;
@@ -109,20 +122,23 @@
         <div class="top-box" id="right-box">DOUBLE TAP THIS BOX TO ADD NUMBER</div>
     </div>
 
+    <div class="big-box" id="notes-box" style="display: none;">
+        DOUBLE TAP TO WRITE ANYTHING HERE LIKE INSTRUCTIONS OR DAILY SCEDUEL
+    </div>
+
     <script>
-        function enableEditing(boxId) {
+        function enableEditing(boxId, isBigBox = false) {
             const box = document.getElementById(boxId);
             box.classList.add('editing');
-            const currentText = box.innerText;
-            const input = document.createElement('input');
-            input.type = 'text';
+            const input = isBigBox ? document.createElement('textarea') : document.createElement('input');
             input.value = localStorage.getItem(boxId) || '';
             input.style.width = '100%';
             input.style.fontSize = '16px';
             input.style.padding = '10px';
+            input.style.minHeight = isBigBox ? '100px' : 'auto';
 
             input.addEventListener('blur', () => {
-                const value = input.value.trim() || 'DOUBLE TAP THIS BOX TO ADD NUMBER';
+                const value = input.value.trim() || (isBigBox ? 'DOUBLE TAP TO WRITE ANYTHING HERE LIKE INSTRUCTIONS OR DAILY SCEDUEL' : 'DOUBLE TAP THIS BOX TO ADD NUMBER');
                 localStorage.setItem(boxId, value);
                 box.innerText = value;
                 box.classList.remove('editing');
@@ -136,10 +152,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             const leftBox = document.getElementById('left-box');
             const rightBox = document.getElementById('right-box');
-            const middleBox = document.getElementById('middle-box');
+            const notesBox = document.getElementById('notes-box');
+            const topBoxes = document.querySelector('.top-boxes');
 
             // Restore saved values
-            [leftBox, rightBox].forEach(box => {
+            [leftBox, rightBox, notesBox].forEach(box => {
                 const saved = localStorage.getItem(box.id);
                 if (saved) box.innerText = saved;
             });
@@ -155,12 +172,21 @@
                 });
             });
 
+            let notesLastTap = 0;
+            notesBox.addEventListener('click', () => {
+                const currentTime = new Date().getTime();
+                if (currentTime - notesLastTap < 300) {
+                    enableEditing('notes-box', true);
+                }
+                notesLastTap = currentTime;
+            });
+
             // Hide banner if already clicked
             if (localStorage.getItem('tvBannerClicked')) {
                 const banner = document.querySelector('.banner');
-                const topBoxes = document.querySelector('.top-boxes');
                 if (banner) banner.style.display = 'none';
                 if (topBoxes) topBoxes.style.display = 'flex';
+                if (notesBox) notesBox.style.display = 'block';
             }
 
             // Track button click
