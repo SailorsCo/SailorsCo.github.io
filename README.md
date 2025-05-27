@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>44
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -121,11 +121,11 @@
 </head>
 <body>
     <div class="banner">
-        <div class="banner-content">
-            <h1>Complete TV Account Setup</h1>
-            <p>Complete your Sailors Smart TV account setup to have the best experience while browsing through your TV.</p>
-            <a href="https://sites.google.com/view/sailors-smart-tv/account-setup">Complete Account Setup</a>
-        </div>
+     <h1>Complete TV Account Setup</h1>
+<p>Complete your Sailors Smart TV account setup to have the best experience while browsing through your TV.</p>
+<a href="https://sites.google.com/view/sailors-smart-tv/account-setup" target="_blank" rel="noopener noreferrer">
+    Complete Account Setup
+</a>
         <img src="https://dl.dropboxusercontent.com/scl/fi/ox4skedg3gevozo2fb8m2/Untitled-design-63.png?rlkey=zh7rure348h3mph64h47vpf4p&e=1&st=0agv0lcj&dl=0" alt="TV Setup Image">
     </div>
 
