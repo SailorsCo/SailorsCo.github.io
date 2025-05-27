@@ -73,8 +73,8 @@
         }
         .big-box {
             max-width: 900px;
-            margin: 0 20px;
-            padding: 20px;
+            margin: 20px auto;
+            padding: 0 20px;
             background-color: #e8e8e8;
             border-radius: 10px;
             text-align: left;
