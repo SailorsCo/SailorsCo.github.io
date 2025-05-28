@@ -65,7 +65,6 @@
             background-color: #f9fafb;
             border: 2px solid #d1d5db;
             border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             cursor: pointer;
             transition: background-color 0.3s, border-color 0.3s;
         }
@@ -74,28 +73,29 @@
             border-color: #9ca3af;
         }
         .top-box.editing {
-            background-color: #fff7ed;
-            border-color: #fb923c;
+            background-color: #f9fafb;
+            border-color: #d1d5db;
         }
         .big-box {
-            max-width: 1000px;
+            max-width: 583px;
             margin: 20px auto;
             padding: 30px;
-            background-color: #fefce8;
-            border: 2px dashed #fbbf24;
+            background-color: #f9fafb;
+            border: 2px solid #d1d5db;
             border-radius: 12px;
-            text-align: center;
+            text-align: left;
             cursor: pointer;
             min-height: 150px;
-            font-size: 18px;
+            font-size: 16.5px;
             transition: background-color 0.3s, border-color 0.3s;
         }
         .big-box:hover {
-            background-color: #fef9c3;
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
         }
         .big-box.editing {
-            background-color: #fff7ed;
-            border-color: #f97316;
+            background-color: #f9fafb;
+            border-color: #d1d5db;
         }
         @media (max-width: 768px) {
             .banner {
