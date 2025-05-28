@@ -1,3 +1,4 @@
+dfyj
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -77,7 +78,7 @@
             border-color: #d1d5db;
         }
         .big-box {
-            max-width: 583px;
+            max-width: 1000px;
             margin: 20px auto;
             padding: 30px;
             background-color: #f9fafb;
@@ -135,7 +136,7 @@
     </div>
 
     <div class="big-box" id="notes-box" style="display: none;">
-        DOUBLE TAP TO WRITE ANYTHING HERE LIKE INSTRUCTIONS OR DAILY SCEDUEL
+        DOUBLE TAP TO WRITE ANYTHING HERE LIKE INSTRUCTIONS OR DAILY SCHEDULE
     </div>
 
     <script>
