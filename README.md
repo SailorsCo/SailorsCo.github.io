@@ -1,4 +1,3 @@
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +6,6 @@
     <style>
         * {
             margin: 0;
-            background-color: black;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
