@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +11,11 @@
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
+
+        body {
+            background-color: black;
+        }
+
         .banner {
             display: flex;
             align-items: center;
@@ -21,17 +27,21 @@
             max-width: 1500px;
             margin: 5px auto;
         }
+
         .banner-content {
             max-width: 50%;
         }
+
         .banner h1 {
             font-size: 24px;
             margin-bottom: 10px;
         }
+
         .banner p {
             font-size: 16px;
             margin-bottom: 20px;
         }
+
         .banner a {
             background-color: black;
             color: white;
@@ -43,13 +53,16 @@
             text-decoration: none;
             display: inline-block;
         }
+
         .banner a:hover {
             opacity: 0.8;
         }
+
         .banner img {
             max-width: 45%;
             border-radius: 10px;
         }
+
         .top-boxes {
             display: flex;
             justify-content: space-between;
@@ -58,6 +71,7 @@
             padding: 0 20px;
             gap: 20px;
         }
+
         .top-box {
             flex: 1;
             padding: 20px;
@@ -68,14 +82,17 @@
             cursor: pointer;
             transition: background-color 0.3s, border-color 0.3s;
         }
+
         .top-box:hover {
             background-color: #f3f4f6;
             border-color: #9ca3af;
         }
+
         .top-box.editing {
             background-color: #f9fafb;
             border-color: #d1d5db;
         }
+
         .big-box {
             max-width: 1000px;
             margin: 20px auto;
@@ -89,29 +106,36 @@
             font-size: 16.5px;
             transition: background-color 0.3s, border-color 0.3s;
         }
+
         .big-box:hover {
             background-color: #f3f4f6;
             border-color: #9ca3af;
         }
+
         .big-box.editing {
             background-color: #f9fafb;
             border-color: #d1d5db;
         }
+
         @media (max-width: 768px) {
             .banner {
                 flex-direction: column;
                 text-align: center;
             }
+
             .banner-content, .banner img {
                 max-width: 100%;
             }
+
             .banner img {
                 margin-top: 20px;
             }
+
             .top-boxes {
                 flex-direction: column;
                 align-items: center;
             }
+
             .top-box {
                 width: 100%;
             }
