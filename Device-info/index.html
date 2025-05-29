@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 <head>
   <title>Detect Operating System & Browser</title>
@@ -74,12 +73,33 @@
   }
 
   function editDeviceName() {
-    const currentName = localStorage.getItem("deviceName") || "Sailors TV";
-    const newName = prompt("Enter new device name:", currentName);
-    if (newName !== null && newName.trim() !== "") {
-      localStorage.setItem("deviceName", newName);
-      document.getElementById("deviceName").textContent = "Device name: " + newName;
-    }
+    const container = document.getElementById("deviceName");
+    const currentText = container.textContent.replace("Device name: ", "");
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = currentText;
+    input.style.fontSize = "1.2em";
+
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        saveDeviceName(input.value);
+      }
+    });
+
+    input.addEventListener("blur", function() {
+      saveDeviceName(input.value);
+    });
+
+    container.textContent = "";
+    container.appendChild(input);
+    input.focus();
+  }
+
+  function saveDeviceName(name) {
+    const container = document.getElementById("deviceName");
+    const trimmed = name.trim() || "Sailors TV";
+    localStorage.setItem("deviceName", trimmed);
+    container.textContent = "Device name: " + trimmed;
   }
 
   // Initialize displayed info
@@ -91,3 +111,4 @@
 
 </body>
 </html>
+
