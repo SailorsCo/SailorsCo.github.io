@@ -1,114 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>System Surveillance Active</title>
-  <style>
-    body {
-      background-color: #000;
-      color: #0f0;
-      font-family: monospace;
-      padding: 20px;
-    }
-    h1 {
-      color: red;
-    }
-    .info {
-      margin: 8px 0;
-    }
-    .scan {
-      color: yellow;
-    }
-    .complete {
-      color: lime;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Device Info Scanner</title>
+<style>
+  body {
+    background: black;
+    color: #0f0;
+    font-family: monospace;
+    padding: 20px;
+  }
+  .scan {
+    color: yellow;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .info {
+    margin: 6px 0;
+  }
+  #final {
+    margin-top: 30px;
+    color: #0f0;
+    font-weight: bold;
+    display: none;
+  }
+</style>
 </head>
 <body>
-  <h1>🛑 Surveillance System Activated</h1>
-  <p class="scan">Scanning device info...</p>
-  <div id="data" style="display:none;">
-    <p class="info">🔍 Browser: <span id="browser"></span></p>
-    <p class="info">🔍 Operating System: <span id="os"></span></p>
-    <p class="info">🔍 Screen Resolution: <span id="screen"></span></p>
-    <p class="info">🔍 Color Depth: <span id="colorDepth"></span></p>
-    <p class="info">🔍 Language: <span id="lang"></span></p>
-    <p class="info">🔍 Timezone: <span id="timezone"></span></p>
-    <p class="info">🔍 Platform: <span id="platform"></span></p>
-    <p class="info">🔍 Cookies Enabled: <span id="cookies"></span></p>
-    <p class="info">🔍 Java Enabled: <span id="java"></span></p>
-    <p class="info">🔍 Referrer (last site you came from): <span id="referrer"></span></p>
-    <p class="info">🔍 Date & Time: <span id="datetime"></span></p>
-    <p class="info">🔍 Approximate Connection Type: <span id="connection"></span></p>
-    <p class="info">🔍 User Agent String: <span id="useragent"></span></p>
-  </div>
-  <p id="final" style="display:none;" class="complete">✅ All data retrieved successfully. Surveillance active.</p>
 
-  <script>
-    // Simulate scan delay
-    setTimeout(() => {
-      document.querySelector('.scan').textContent = "Establishing secure connection...";
-    }, 1000);
+<h1>🔎 Device & Browser Info Scanner made by Salaar</h1>
+<p class="scan">Scanning device info...</p>
 
-    setTimeout(() => {
-      document.querySelector('.scan').textContent = "Extracting system information...";
-    }, 2500);
+<!-- Original info -->
+<p class="info">🔍 Browser: <span id="browser"></span></p>
+<p class="info">🔍 Operating System: <span id="os"></span></p>
+<p class="info">🔍 Screen Resolution: <span id="screen"></span></p>
+<p class="info">🔍 Color Depth: <span id="colorDepth"></span></p>
+<p class="info">🔍 Language: <span id="lang"></span></p>
+<p class="info">🔍 Timezone: <span id="timezone"></span></p>
+<p class="info">🔍 Platform: <span id="platform"></span></p>
+<p class="info">🔍 Cookies Enabled: <span id="cookies"></span></p>
+<p class="info">🔍 Java Enabled: <span id="java"></span></p>
+<p class="info">🔍 Referrer (last site you came from): <span id="referrer"></span></p>
+<p class="info">🔍 Date & Time: <span id="datetime"></span></p>
+<p class="info">🔍 Approximate Connection Type: <span id="connection"></span></p>
+<p class="info">🔍 User Agent String: <span id="useragent"></span></p>
 
-    setTimeout(() => {
-      document.querySelector('.scan').style.display = 'none';
-      document.getElementById("data").style.display = 'block';
+<!-- Extra info -->
+<p class="info">🔋 Battery: <span id="battery">Detecting...</span></p>
+<p class="info">🖥 CPU Cores: <span id="cores">Detecting...</span></p>
+<p class="info">💾 RAM: <span id="ram">Detecting...</span></p>
+<p class="info">🤏 Touch Support: <span id="touch">Detecting...</span></p>
+<p class="info">🌐 Online Status: <span id="online">Detecting...</span></p>
+<p class="info">🗣 Languages List: <span id="languagesList">Detecting...</span></p>
+<p class="info">📱 Screen Orientation: <span id="orientation">Detecting...</span></p>
+<p class="info">🔌 Plugins: <span id="plugins">Detecting...</span></p>
+<p class="info">🚫 Do Not Track: <span id="dnt">Detecting...</span></p>
+<p class="info">🕒 Timezone Offset: <span id="timezoneOffset">Detecting...</span></p>
 
-      // Browser
-      document.getElementById("browser").textContent = navigator.userAgent;
+<div id="final">✅ All data retrieved successfully</div>
 
-      // OS detection
-      let os = "Unknown OS";
-      if (navigator.appVersion.indexOf("Win") != -1) os = "Windows";
-      if (navigator.appVersion.indexOf("Mac") != -1) os = "MacOS";
-      if (navigator.appVersion.indexOf("X11") != -1) os = "UNIX";
-      if (navigator.appVersion.indexOf("Linux") != -1) os = "Linux";
-      document.getElementById("os").textContent = os;
+<script>
+  // Fake scanning messages to build suspense
+  setTimeout(() => {
+    document.querySelector('.scan').textContent = "Establishing secure connection...";
+  }, 1000);
+  setTimeout(() => {
+    document.querySelector('.scan').textContent = "Extracting system information...";
+  }, 2500);
 
-      // Screen resolution
-      document.getElementById("screen").textContent = window.screen.width + " x " + window.screen.height;
+  setTimeout(() => {
+    // Fill original info
 
-      // Color depth
-      document.getElementById("colorDepth").textContent = window.screen.colorDepth + " bit";
+    // Browser user agent
+    const userAgent = navigator.userAgent;
+    document.getElementById('browser').textContent = navigator.userAgent.split(' ')[0] || "Unknown";
 
-      // Language
-      document.getElementById("lang").textContent = navigator.language;
+    // Operating system (basic check)
+    const appVer = navigator.appVersion;
+    let os = "Unknown";
+    if (appVer.indexOf("Win") !== -1) os = "Windows";
+    else if (appVer.indexOf("Mac") !== -1) os = "MacOS";
+    else if (appVer.indexOf("Linux") !== -1) os = "Linux";
+    else if (appVer.indexOf("Android") !== -1) os = "Android";
+    else if (appVer.indexOf("like Mac") !== -1) os = "iOS";
+    document.getElementById('os').textContent = os;
 
-      // Timezone
-      document.getElementById("timezone").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // Screen resolution
+    document.getElementById('screen').textContent = window.screen.width + " x " + window.screen.height;
 
-      // Platform
-      document.getElementById("platform").textContent = navigator.platform;
+    // Color depth
+    document.getElementById('colorDepth').textContent = window.screen.colorDepth + "-bit";
 
-      // Cookies
-      document.getElementById("cookies").textContent = navigator.cookieEnabled ? "Enabled" : "Disabled";
+    // Language
+    document.getElementById('lang').textContent = navigator.language || "Unknown";
 
-      // Java (almost always false now)
-      document.getElementById("java").textContent = navigator.javaEnabled() ? "Enabled" : "Disabled";
+    // Timezone
+    document.getElementById('timezone').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || "Unknown";
 
-      // Referrer
-      document.getElementById("referrer").textContent = document.referrer || "Direct Access";
+    // Platform
+    document.getElementById('platform').textContent = navigator.platform || "Unknown";
 
-      // Date & time
-      document.getElementById("datetime").textContent = new Date().toLocaleString();
+    // Cookies enabled
+    document.getElementById('cookies').textContent = navigator.cookieEnabled ? "Enabled" : "Disabled";
 
-      // Connection type (if supported)
-      let conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      document.getElementById("connection").textContent = conn ? conn.effectiveType : "Unknown";
+    // Java enabled
+    document.getElementById('java').textContent = navigator.javaEnabled() ? "Enabled" : "Disabled";
 
-      // User Agent
-      document.getElementById("useragent").textContent = navigator.userAgent;
+    // Referrer
+    document.getElementById('referrer').textContent = document.referrer || "Direct Access";
 
-      // Final complete message
-      setTimeout(() => {
-        document.getElementById("final").style.display = 'block';
-      }, 800);
+    // Date & Time
+    document.getElementById('datetime').textContent = new Date().toLocaleString();
 
-    }, 4000);
-  </script>
+    // Connection type
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    let connType = "Unknown";
+    if(conn && conn.effectiveType){
+      connType = conn.effectiveType;
+    }
+    document.getElementById('connection').textContent = connType;
+
+    // User agent string
+    document.getElementById('useragent').textContent = userAgent;
+
+    // Fill extra info
+
+    // Battery
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        const level = (battery.level * 100) + "%";
+        const charging = battery.charging ? "Charging" : "Not Charging";
+        document.getElementById('battery').textContent = `${level} (${charging})`;
+      });
+    } else {
+      document.getElementById('battery').textContent = "Not supported";
+    }
+
+    // CPU cores
+    document.getElementById('cores').textContent = navigator.hardwareConcurrency ? navigator.hardwareConcurrency + " cores" : "Unknown";
+
+    // RAM
+    document.getElementById('ram').textContent = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Unknown";
+
+    // Touch support
+    const touchSupport = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    document.getElementById('touch').textContent = touchSupport ? "Yes" : "No";
+
+    // Online status
+    document.getElementById('online').textContent = navigator.onLine ? "Online" : "Offline";
+
+    // Languages list
+    document.getElementById('languagesList').textContent = navigator.languages ? navigator.languages.join(", ") : "Unknown";
+
+    // Screen orientation
+    document.getElementById('orientation').textContent = screen.orientation ? screen.orientation.type : "Unknown";
+
+    // Plugins installed
+    const plugins = navigator.plugins.length > 0
+      ? Array.from(navigator.plugins).map(p => p.name).join(", ")
+      : "None detected";
+    document.getElementById('plugins').textContent = plugins;
+
+    // Do Not Track
+    const dnt = navigator.doNotTrack === "1" ? "Enabled" : "Disabled";
+    document.getElementById('dnt').textContent = dnt;
+
+    // Timezone offset (minutes)
+    document.getElementById('timezoneOffset').textContent = new Date().getTimezoneOffset() + " minutes";
+
+    // Show final message
+    document.getElementById('final').style.display = 'block';
+    document.querySelector('.scan').textContent = "Scan complete.";
+
+  }, 4000);
+</script>
+
 </body>
 </html>
+
 
