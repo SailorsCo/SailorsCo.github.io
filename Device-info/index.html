@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Detect Operating System & Browser</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      font-size: 1.5em;
+    }
+    .info {
+      color: #333;
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    .device-section {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .device-name {
+      font-size: 1.2em;
+      margin-right: 10px;
+    }
+    .edit-button {
+      padding: 5px 10px;
+      font-size: 0.9em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h1>System Information</h1>
+<div class="info" id="os">Detecting Operating System...</div>
+<div class="info" id="browser">Detecting Browser...</div>
+
+<div class="device-section">
+  <div class="device-name" id="deviceName">Device name: Sailors TV</div>
+  <button class="edit-button" onclick="editDeviceName()">Edit</button>
+</div>
+
+<script>
+  function getOS() {
+    const userAgent = window.navigator.userAgent;
+
+    if (userAgent.indexOf("Windows NT 10.0") !== -1) return "Windows 10 or 11";
+    if (userAgent.indexOf("Windows NT 11.0") !== -1) return "Windows 11";
+    if (userAgent.indexOf("Windows NT 6.3") !== -1) return "Windows 8.1";
+    if (userAgent.indexOf("Windows NT 6.2") !== -1) return "Windows 8";
+    if (userAgent.indexOf("Windows NT 6.1") !== -1) return "Windows 7";
+    if (userAgent.indexOf("Mac OS X") !== -1) return "macOS";
+    if (userAgent.indexOf("Linux") !== -1) return "Linux";
+    if (userAgent.indexOf("Android") !== -1) return "Android";
+    if (userAgent.indexOf("like Mac") !== -1) return "iOS";
+
+    return "Unknown OS";
+  }
+
+  function getBrowser() {
+    const userAgent = window.navigator.userAgent;
+
+    if (userAgent.indexOf("Firefox") > -1) return "Mozilla Firefox";
+    if (userAgent.indexOf("Edg") > -1) return "Microsoft Edge";
+    if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) return "Opera";
+    if (userAgent.indexOf("Chrome") > -1) return "Google Chrome";
+    if (userAgent.indexOf("Safari") > -1) return "Apple Safari";
+
+    return "Unknown Browser";
+  }
+
+  function editDeviceName() {
+    const currentName = localStorage.getItem("deviceName") || "Sailors TV";
+    const newName = prompt("Enter new device name:", currentName);
+    if (newName !== null && newName.trim() !== "") {
+      localStorage.setItem("deviceName", newName);
+      document.getElementById("deviceName").textContent = "Device name: " + newName;
+    }
+  }
+
+  // Initialize displayed info
+  document.getElementById("os").textContent = "Operating System: " + getOS();
+  document.getElementById("browser").textContent = "Browser: " + getBrowser();
+  const savedDeviceName = localStorage.getItem("deviceName") || "Sailors TV";
+  document.getElementById("deviceName").textContent = "Device name: " + savedDeviceName;
+</script>
+
+</body>
+</html>
