@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>We Know Who You Are</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 20px;
+    }
+    h1 {
+      color: red;
+    }
+    .info {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🕵️ WARNING: We Are Tracking You</h1>
+  <p class="info">Browser: <span id="browser"></span></p>
+  <p class="info">Operating System: <span id="os"></span></p>
+  <p class="info">Screen Resolution: <span id="screen"></span></p>
+  <p class="info">Language: <span id="lang"></span></p>
+  <p class="info">Timezone: <span id="timezone"></span></p>
+  <p class="info">Referrer (last site you came from): <span id="referrer"></span></p>
+  <p class="info">Date & Time: <span id="datetime"></span></p>
+
+  <script>
+    // Detect browser
+    let browser = navigator.userAgent;
+    document.getElementById("browser").textContent = browser;
+
+    // Detect OS (simple way)
+    let os = "Unknown OS";
+    if (navigator.appVersion.indexOf("Win") != -1) os = "Windows";
+    if (navigator.appVersion.indexOf("Mac") != -1) os = "MacOS";
+    if (navigator.appVersion.indexOf("X11") != -1) os = "UNIX";
+    if (navigator.appVersion.indexOf("Linux") != -1) os = "Linux";
+    document.getElementById("os").textContent = os;
+
+    // Screen size
+    document.getElementById("screen").textContent = window.screen.width + " x " + window.screen.height;
+
+    // Language
+    document.getElementById("lang").textContent = navigator.language;
+
+    // Timezone
+    document.getElementById("timezone").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Referrer
+    document.getElementById("referrer").textContent = document.referrer || "Direct Access";
+
+    // Date & time
+    document.getElementById("datetime").textContent = new Date().toLocaleString();
+  </script>
+</body>
+</html>
