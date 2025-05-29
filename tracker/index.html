@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>We Know Who You Are</title>
+  <title>System Surveillance Active</title>
   <style>
     body {
       background-color: #000;
@@ -13,47 +13,102 @@
       color: red;
     }
     .info {
-      margin: 10px 0;
+      margin: 8px 0;
+    }
+    .scan {
+      color: yellow;
+    }
+    .complete {
+      color: lime;
     }
   </style>
 </head>
 <body>
-  <h1>🕵️ WARNING: We Are Tracking You</h1>
-  <p class="info">Browser: <span id="browser"></span></p>
-  <p class="info">Operating System: <span id="os"></span></p>
-  <p class="info">Screen Resolution: <span id="screen"></span></p>
-  <p class="info">Language: <span id="lang"></span></p>
-  <p class="info">Timezone: <span id="timezone"></span></p>
-  <p class="info">Referrer (last site you came from): <span id="referrer"></span></p>
-  <p class="info">Date & Time: <span id="datetime"></span></p>
+  <h1>🛑 Surveillance System Activated</h1>
+  <p class="scan">Scanning device info...</p>
+  <div id="data" style="display:none;">
+    <p class="info">🔍 Browser: <span id="browser"></span></p>
+    <p class="info">🔍 Operating System: <span id="os"></span></p>
+    <p class="info">🔍 Screen Resolution: <span id="screen"></span></p>
+    <p class="info">🔍 Color Depth: <span id="colorDepth"></span></p>
+    <p class="info">🔍 Language: <span id="lang"></span></p>
+    <p class="info">🔍 Timezone: <span id="timezone"></span></p>
+    <p class="info">🔍 Platform: <span id="platform"></span></p>
+    <p class="info">🔍 Cookies Enabled: <span id="cookies"></span></p>
+    <p class="info">🔍 Java Enabled: <span id="java"></span></p>
+    <p class="info">🔍 Referrer (last site you came from): <span id="referrer"></span></p>
+    <p class="info">🔍 Date & Time: <span id="datetime"></span></p>
+    <p class="info">🔍 Approximate Connection Type: <span id="connection"></span></p>
+    <p class="info">🔍 User Agent String: <span id="useragent"></span></p>
+  </div>
+  <p id="final" style="display:none;" class="complete">✅ All data retrieved successfully. Surveillance active.</p>
 
   <script>
-    // Detect browser
-    let browser = navigator.userAgent;
-    document.getElementById("browser").textContent = browser;
+    // Simulate scan delay
+    setTimeout(() => {
+      document.querySelector('.scan').textContent = "Establishing secure connection...";
+    }, 1000);
 
-    // Detect OS (simple way)
-    let os = "Unknown OS";
-    if (navigator.appVersion.indexOf("Win") != -1) os = "Windows";
-    if (navigator.appVersion.indexOf("Mac") != -1) os = "MacOS";
-    if (navigator.appVersion.indexOf("X11") != -1) os = "UNIX";
-    if (navigator.appVersion.indexOf("Linux") != -1) os = "Linux";
-    document.getElementById("os").textContent = os;
+    setTimeout(() => {
+      document.querySelector('.scan').textContent = "Extracting system information...";
+    }, 2500);
 
-    // Screen size
-    document.getElementById("screen").textContent = window.screen.width + " x " + window.screen.height;
+    setTimeout(() => {
+      document.querySelector('.scan').style.display = 'none';
+      document.getElementById("data").style.display = 'block';
 
-    // Language
-    document.getElementById("lang").textContent = navigator.language;
+      // Browser
+      document.getElementById("browser").textContent = navigator.userAgent;
 
-    // Timezone
-    document.getElementById("timezone").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      // OS detection
+      let os = "Unknown OS";
+      if (navigator.appVersion.indexOf("Win") != -1) os = "Windows";
+      if (navigator.appVersion.indexOf("Mac") != -1) os = "MacOS";
+      if (navigator.appVersion.indexOf("X11") != -1) os = "UNIX";
+      if (navigator.appVersion.indexOf("Linux") != -1) os = "Linux";
+      document.getElementById("os").textContent = os;
 
-    // Referrer
-    document.getElementById("referrer").textContent = document.referrer || "Direct Access";
+      // Screen resolution
+      document.getElementById("screen").textContent = window.screen.width + " x " + window.screen.height;
 
-    // Date & time
-    document.getElementById("datetime").textContent = new Date().toLocaleString();
+      // Color depth
+      document.getElementById("colorDepth").textContent = window.screen.colorDepth + " bit";
+
+      // Language
+      document.getElementById("lang").textContent = navigator.language;
+
+      // Timezone
+      document.getElementById("timezone").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      // Platform
+      document.getElementById("platform").textContent = navigator.platform;
+
+      // Cookies
+      document.getElementById("cookies").textContent = navigator.cookieEnabled ? "Enabled" : "Disabled";
+
+      // Java (almost always false now)
+      document.getElementById("java").textContent = navigator.javaEnabled() ? "Enabled" : "Disabled";
+
+      // Referrer
+      document.getElementById("referrer").textContent = document.referrer || "Direct Access";
+
+      // Date & time
+      document.getElementById("datetime").textContent = new Date().toLocaleString();
+
+      // Connection type (if supported)
+      let conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      document.getElementById("connection").textContent = conn ? conn.effectiveType : "Unknown";
+
+      // User Agent
+      document.getElementById("useragent").textContent = navigator.userAgent;
+
+      // Final complete message
+      setTimeout(() => {
+        document.getElementById("final").style.display = 'block';
+      }, 800);
+
+    }, 4000);
   </script>
 </body>
 </html>
+
