@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sailors TV Bootup</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    video {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <video id="bootupVideo" autoplay muted playsinline>
+    <source src="https://dl.dropboxusercontent.com/scl/fi/65sm9an7829yevyn76lac/Sailors-TV-bootup-2.mp4?rlkey=uywxbtadpf7ntd6bkbuk081yi&st=dnzkbf1d&dl=0" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <script>
+    const video = document.getElementById('bootupVideo');
+    video.onended = function() {
+      window.location.href = "https://sites.google.com/view/Sailors-Smart-TV";
+    };
+  </script>
+</body>
+</html>
