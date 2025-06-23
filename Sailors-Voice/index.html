@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sailors Voice Search</title>
+  <style>
+    :root {
+      --gradient: linear-gradient(45deg, #8712be, #1e21d1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .dropdown {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #222;
+      color: #fff;
+      border: 1px solid #444;
+      font-size: 14px;
+      outline: none;
+    }
+
+    select:hover {
+      border-color: #8712be;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid transparent;
+      border-image: var(--gradient) 1;
+      border-radius: 20px;
+      backdrop-filter: blur(25px);
+      box-shadow: 0 0 25px rgba(135, 18, 190, 0.4);
+      padding: 50px 40px;
+      width: 500px;
+      max-width: 90%;
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+    }
+
+    h2 {
+      margin: 0 0 15px;
+      font-weight: 600;
+      color: white;
+      font-size: 24px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    #subtitle {
+      font-size: 18px;
+      color: #eee;
+      min-height: 24px;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    footer a {
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="dropdown">
+    <select id="engine">
+      <option value="google" selected>Google</option>
+      <option value="bing">Bing</option>
+      <option value="qwant">Qwant</option>
+      <option value="brave">Brave</option>
+      <option value="yahoo">Yahoo</option>
+    </select>
+  </div>
+
+  <div class="container">
+    <h2>🎙️ Speak to Search</h2>
+    <canvas id="wave"></canvas>
+    <div id="subtitle">Listening...</div>
+  </div>
+
+  <footer>
+    Copyright © 2025 
+    <a href="https://sites.google.com/view/SailorsCo" target="_blank">Sailors Voice Search</a> 
+    All rights reserved, 
+    <a href="https://sites.google.com/view/SailorsCo/feedback" target="_blank">Give us Feedback</a>
+  </footer>
+
+  <script>
+    const canvas = document.getElementById('wave');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    let analyser, dataArray;
+    let recognition;
+    const subtitle = document.getElementById('subtitle');
+    const engineSelector = document.getElementById('engine');
+
+    function drawWave() {
+      requestAnimationFrame(drawWave);
+      if (!analyser) return;
+
+      analyser.getByteTimeDomainData(dataArray);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#8712be';
+
+      const sliceWidth = canvas.width / dataArray.length;
+      let x = 0;
+
+      for (let i = 0; i < dataArray.length; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = v * canvas.height / 2;
+
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+
+        x += sliceWidth;
+      }
+      ctx.stroke();
+    }
+
+    async function setupMicrophone() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audioCtx = new AudioContext();
+        const source = audioCtx.createMediaStreamSource(stream);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        dataArray = new Uint8Array(analyser.fftSize);
+        source.connect(analyser);
+        drawWave();
+      } catch (err) {
+        subtitle.textContent = "Microphone access denied.";
+      }
+    }
+
+    function startRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        subtitle.textContent = "Speech recognition not supported.";
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      let finalTranscript = "";
+
+      recognition.onresult = (event) => {
+        let interim = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const text = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += text;
+          } else {
+            interim += text;
+          }
+        }
+        subtitle.textContent = finalTranscript + interim;
+      };
+
+      recognition.onerror = (e) => {
+        subtitle.textContent = "Error: " + e.error;
+      };
+
+      recognition.onend = () => {
+        const result = subtitle.textContent.trim().toLowerCase();
+        if (result === "cancel search") {
+          window.close();
+        } else if (result.length > 0) {
+          const engine = engineSelector.value;
+          let url = "";
+          switch (engine) {
+            case "bing":
+              url = "https://www.bing.com/search?q=" + encodeURIComponent(result);
+              break;
+            case "qwant":
+              url = "https://www.qwant.com/?q=" + encodeURIComponent(result);
+              break;
+            case "brave":
+              url = "https://search.brave.com/search?q=" + encodeURIComponent(result);
+              break;
+            case "yahoo":
+              url = "https://search.yahoo.com/search?p=" + encodeURIComponent(result);
+              break;
+            default:
+              url = "https://www.google.com/search?q=" + encodeURIComponent(result);
+          }
+          window.location.href = url;
+        } else {
+          subtitle.textContent = "No input detected. Try again.";
+          setTimeout(startRecognition, 1500);
+        }
+      };
+
+      recognition.start();
+    }
+
+    window.onload = () => {
+      setupMicrophone();
+      startRecognition();
+    };
+  </script>
+</body>
+</html>
