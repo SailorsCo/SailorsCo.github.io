@@ -14,15 +14,14 @@
 
     body {
       margin: 0;
-      padding: 0;
       background: black;
       font-family: 'Segoe UI', sans-serif;
       color: white;
-      height: 100vh;
-      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .dropdown {
@@ -34,11 +33,10 @@
     select {
       padding: 8px 12px;
       border-radius: 8px;
-      background: #222;
+      background: #1a1a1a;
       color: #fff;
       border: 1px solid #444;
       font-size: 14px;
-      outline: none;
     }
 
     select:hover {
@@ -46,24 +44,53 @@
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.15);
-      border: 2px solid transparent;
-      border-image: var(--gradient) 1;
+      position: relative;
+      overflow: hidden;
       border-radius: 20px;
-      backdrop-filter: blur(25px);
-      box-shadow: 0 0 25px rgba(135, 18, 190, 0.4);
-      padding: 50px 40px;
-      width: 500px;
-      max-width: 90%;
+      padding: 40px 30px;
+      width: 480px;
+      max-width: 95%;
       text-align: center;
-      transition: all 0.3s ease-in-out;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(25px);
+      box-shadow: 0 0 40px rgba(135, 18, 190, 0.3);
+      border: 2px solid transparent;
+      transform-origin: center;
+      transition: transform 0.1s ease;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg, #8712be, #1e21d1, #8712be);
+      animation: rotate 6s linear infinite;
+      z-index: -1;
+    }
+
+    .container::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 18px;
+      z-index: 1;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     h2 {
-      margin: 0 0 15px;
-      font-weight: 600;
-      color: white;
-      font-size: 24px;
+      font-size: 26px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
     }
 
     canvas {
@@ -72,6 +99,8 @@
       background: rgba(255, 255, 255, 0.08);
       border-radius: 10px;
       margin: 20px 0;
+      position: relative;
+      z-index: 2;
     }
 
     #subtitle {
@@ -79,14 +108,17 @@
       color: #eee;
       min-height: 24px;
       margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
     }
 
     footer {
       position: absolute;
-      bottom: 10px;
-      text-align: center;
+      bottom: 12px;
       font-size: 12px;
       color: #aaa;
+      text-align: center;
+      width: 100%;
     }
 
     footer a {
@@ -111,7 +143,7 @@
     </select>
   </div>
 
-  <div class="container">
+  <div class="container" id="jellyBox">
     <h2>🎙️ Speak to Search</h2>
     <canvas id="wave"></canvas>
     <div id="subtitle">Listening...</div>
@@ -130,10 +162,11 @@
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    let analyser, dataArray;
-    let recognition;
+    let analyser, dataArray, recognition, silenceTimer;
     const subtitle = document.getElementById('subtitle');
     const engineSelector = document.getElementById('engine');
+    const redirectURL = "https://sites.google.com/view/Sailors-TV";
+    const jellyBox = document.getElementById('jellyBox');
 
     function drawWave() {
       requestAnimationFrame(drawWave);
@@ -147,6 +180,7 @@
 
       const sliceWidth = canvas.width / dataArray.length;
       let x = 0;
+      let sum = 0;
 
       for (let i = 0; i < dataArray.length; i++) {
         const v = dataArray[i] / 128.0;
@@ -159,7 +193,14 @@
         }
 
         x += sliceWidth;
+        sum += Math.abs(v - 1); // Volume magnitude
       }
+
+      const volume = sum / dataArray.length;
+      const scale = 1 + volume * 0.2; // Scale based on voice volume
+
+      jellyBox.style.transform = `scale(${scale}, ${2 - scale})`;
+
       ctx.stroke();
     }
 
@@ -178,6 +219,13 @@
       }
     }
 
+    function resetSilenceTimer() {
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => {
+        window.location.href = redirectURL;
+      }, 30000); // 30 seconds
+    }
+
     function startRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
@@ -186,13 +234,14 @@
       }
 
       recognition = new SpeechRecognition();
-      recognition.continuous = false;
+      recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
 
       let finalTranscript = "";
 
       recognition.onresult = (event) => {
+        resetSilenceTimer();
         let interim = "";
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const text = event.results[i][0].transcript;
@@ -202,20 +251,17 @@
             interim += text;
           }
         }
-        subtitle.textContent = finalTranscript + interim;
-      };
+        const spoken = (finalTranscript + interim).trim();
+        subtitle.textContent = spoken;
 
-      recognition.onerror = (e) => {
-        subtitle.textContent = "Error: " + e.error;
-      };
+        if (spoken.toLowerCase() === "cancel search") {
+          window.location.href = redirectURL;
+        }
 
-      recognition.onend = () => {
-        const result = subtitle.textContent.trim().toLowerCase();
-        if (result === "cancel search") {
-          window.close();
-        } else if (result.length > 0) {
-          const engine = engineSelector.value;
+        if (event.results[event.results.length - 1].isFinal) {
+          const result = spoken;
           let url = "";
+          const engine = engineSelector.value;
           switch (engine) {
             case "bing":
               url = "https://www.bing.com/search?q=" + encodeURIComponent(result);
@@ -233,13 +279,20 @@
               url = "https://www.google.com/search?q=" + encodeURIComponent(result);
           }
           window.location.href = url;
-        } else {
-          subtitle.textContent = "No input detected. Try again.";
-          setTimeout(startRecognition, 1500);
+          finalTranscript = "";
         }
       };
 
+      recognition.onerror = (e) => {
+        subtitle.textContent = "Error: " + e.error;
+      };
+
+      recognition.onend = () => {
+        startRecognition(); // restart recognition continuously
+      };
+
       recognition.start();
+      resetSilenceTimer();
     }
 
     window.onload = () => {
@@ -249,3 +302,4 @@
   </script>
 </body>
 </html>
+
