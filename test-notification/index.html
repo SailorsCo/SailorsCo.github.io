@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Test Notification</title>
+</head>
+<body>
+
+  <h2>Test Notification Demo</h2>
+  <button onclick="requestPermission()">Enable Notifications</button>
+  <button onclick="sendNotification()">Send Test Notification</button>
+
+  <script>
+    function requestPermission() {
+      if (!("Notification" in window)) {
+        alert("This browser does not support desktop notifications.");
+        return;
+      }
+
+      Notification.requestPermission().then(function(permission) {
+        if (permission === "granted") {
+          alert("Notifications are enabled!");
+        } else {
+          alert("Notifications are denied.");
+        }
+      });
+    }
+
+    function sendNotification() {
+      if (Notification.permission === "granted") {
+        new Notification("This is a test", {
+          body: "Do you like our test notification?",
+          icon: "https://via.placeholder.com/100"
+        });
+      } else {
+        alert("Please enable notifications first.");
+      }
+    }
+  </script>
+
+</body>
+</html>
