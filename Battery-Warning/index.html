@@ -37,10 +37,14 @@
     <span id="battery-level"></span>
   </div>
 
-  <!-- Hidden audio element -->
+  <!-- Sound for low battery -->
   <audio id="battery-alert-sound" preload="auto">
-    <source src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" type="audio/ogg">
-    Your browser does not support the audio element.
+    <source src="https://dl.dropboxusercontent.com/scl/fi/nl1h5xemrmuj9mmod2d0o/Battery-Warning-1.mp3?rlkey=6h66oypgkjdu7wrt3tfpwq736&st=0wox13hd&dl=0">
+  </audio>
+
+  <!-- Sound for charger plugged in -->
+  <audio id="plug-in-sound" preload="auto">
+    <source src="https://dl.dropboxusercontent.com/scl/fi/k071vl17ykzem08o5k341/Charger-Plugged-in.mp3?rlkey=3ta64zeg66cmrhv1a7u6af7kt&st=g93wmje5&dl=0" type="audio/mp3">
   </audio>
 
   <script>
@@ -54,8 +58,10 @@
       const banner = document.getElementById('warning-banner');
       const batteryLevel = document.getElementById('battery-level');
       const alertSound = document.getElementById('battery-alert-sound');
+      const plugInSound = document.getElementById('plug-in-sound');
 
       let alertPlayed = false;
+      let lastCharging = battery.charging;
 
       function updateBanner() {
         const percent = Math.round(battery.level * 100);
@@ -65,20 +71,24 @@
           banner.style.display = 'flex';
 
           if (!alertPlayed) {
-            alertSound.play().catch(() => {
-              console.log('Autoplay blocked. Sound will play after user interaction.');
-            });
+            alertSound.play().catch(() => {});
             alertPlayed = true;
           }
         } else {
           banner.style.display = 'none';
           alertPlayed = false;
         }
+
+        // Detect charger plug-in
+        if (!lastCharging && battery.charging) {
+          plugInSound.play().catch(() => {});
+        }
+
+        lastCharging = battery.charging;
       }
 
-      updateBanner(); // Initial check
+      updateBanner();
 
-      // Event listeners for battery updates
       battery.addEventListener('levelchange', updateBanner);
       battery.addEventListener('chargingchange', updateBanner);
     }
@@ -87,4 +97,3 @@
   </script>
 </body>
 </html>
-
