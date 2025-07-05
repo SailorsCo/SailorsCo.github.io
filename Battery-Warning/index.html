@@ -7,7 +7,7 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: white;
+      background: transparent;
     }
 
     #warning-banner {
@@ -27,7 +27,7 @@
     }
 
     #battery-level {
-      margin-left: 1em;
+      margin-right: 35px;
     }
   </style>
 </head>
@@ -36,6 +36,12 @@
     <span>WARNING: Your device is on 20% Battery, please plug your charger in</span>
     <span id="battery-level"></span>
   </div>
+
+  <!-- Hidden audio element -->
+  <audio id="battery-alert-sound" preload="auto">
+    <source src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" type="audio/ogg">
+    Your browser does not support the audio element.
+  </audio>
 
   <script>
     async function monitorBattery() {
@@ -47,6 +53,9 @@
       const battery = await navigator.getBattery();
       const banner = document.getElementById('warning-banner');
       const batteryLevel = document.getElementById('battery-level');
+      const alertSound = document.getElementById('battery-alert-sound');
+
+      let alertPlayed = false;
 
       function updateBanner() {
         const percent = Math.round(battery.level * 100);
@@ -54,14 +63,22 @@
 
         if (percent <= 20 && !battery.charging) {
           banner.style.display = 'flex';
+
+          if (!alertPlayed) {
+            alertSound.play().catch(() => {
+              console.log('Autoplay blocked. Sound will play after user interaction.');
+            });
+            alertPlayed = true;
+          }
         } else {
           banner.style.display = 'none';
+          alertPlayed = false;
         }
       }
 
       updateBanner(); // Initial check
 
-      // Listen for changes
+      // Event listeners for battery updates
       battery.addEventListener('levelchange', updateBanner);
       battery.addEventListener('chargingchange', updateBanner);
     }
@@ -70,3 +87,4 @@
   </script>
 </body>
 </html>
+
