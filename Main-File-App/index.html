@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choose Your File Storage App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    .options {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    .option {
+      cursor: pointer;
+      text-align: center;
+    }
+    .option img {
+      width: 120px;
+      height: 100px;
+      display: block;
+      margin: auto;
+    }
+    .custom-input {
+      margin-top: 20px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      width: 300px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Choose your main File storage app?</h1>
+
+  <div class="options">
+    <div class="option" onclick="selectApp('https://drive.google.com')">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/2295px-Google_Drive_icon_%282020%29.svg.png" alt="Google Drive">
+      <p>Google Drive</p>
+    </div>
+    <div class="option" onclick="selectApp('https://onedrive.live.com')">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Microsoft_Office_OneDrive_%282019%E2%80%93present%29.svg/1280px-Microsoft_Office_OneDrive_%282019%E2%80%93present%29.svg.png">
+      <p>Microsoft OneDrive</p>
+    </div>
+    <div class="option" onclick="selectApp('https://dropbox.com')">
+      <img src="https://cdn.prod.website-files.com/66c503d081b2f012369fc5d2/674000d6c0a42d41f8c331be_dropbox-2-logo-png-transparent.png" alt="Dropbox">
+      <p>Dropbox</p>
+    </div>
+    <div class="option" onclick="selectApp('https://icloud.com')">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/ICloud_logo.svg/2560px-ICloud_logo.svg.png" alt="Apple iCloud">
+      <p>Apple iCloud</p>
+    </div>
+  </div>
+
+  <div class="custom-input">
+    <label for="customUrl">Don't see your file storage app? Type the link:</label>
+    <input type="text" id="customUrl" placeholder="https://example.com" onkeydown="handleEnter(event)">
+  </div>
+
+  <script>
+    // Helper to set cookie
+    function setCookie(name, value, days) {
+      let expires = "";
+      if (days) {
+        let d = new Date();
+        d.setTime(d.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + d.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+    // Helper to get cookie
+    function getCookie(name) {
+      let nameEQ = name + "=";
+      let ca = document.cookie.split(';');
+      for(let i=0;i < ca.length;i++) {
+        let c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      }
+      return null;
+    }
+
+    // Function when selecting an app
+    function selectApp(url) {
+      if (confirm("Are you sure this is your main file storage app? You cannot undo this unless you reset your browser cookies.")) {
+        setCookie("mainStorage", url, 365);
+        window.location.href = url;
+      }
+    }
+
+    // Function for custom input
+    function handleEnter(event) {
+      if (event.key === "Enter") {
+        let url = document.getElementById("customUrl").value.trim();
+        if (url) {
+          if (!/^https?:\/\//i.test(url)) {
+            url = "https://" + url;
+          }
+          selectApp(url);
+        }
+      }
+    }
+
+    // On load, check if cookie exists
+    window.onload = function() {
+      let saved = getCookie("mainStorage");
+      if (saved) {
+        window.location.href = saved;
+      }
+    }
+  </script>
+
+</body>
+</html>
