@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sailors TV Notifications</title>
+</head>
+<body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
+  <h1>Sailors TV Notifications</h1>
+  <p>
+    This is Sailors TV notifications, we will send you promotions and other stuff so stay in the know.
+  </p>
+  <button id="enableBtn" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+    Enable Notifications
+  </button>
+
+  <script>
+    const button = document.getElementById("enableBtn");
+
+    // Helper function to create a notification
+    function sendNotification(title, body, icon, url) {
+      if (Notification.permission === "granted") {
+        const notification = new Notification(title, {
+          body: body,
+          icon: icon
+        });
+        notification.onclick = () => {
+          window.open(url, "_blank");
+        };
+      }
+    }
+
+    // Handle click on enable button
+    button.addEventListener("click", async () => {
+      if (Notification.permission !== "granted") {
+        await Notification.requestPermission();
+      }
+
+      if (Notification.permission === "granted") {
+        // Send first notification
+        sendNotification(
+          "Congratulations",
+          "You are now signed up for Sailors TV notifications, if you ever want us to stop sending notifications then you need to reset sailorsco.github.io cookies, if you want a tutorial on how to do that then just click this notification",
+          "https://sailors.co/img/sailors-tv.png",
+          "https://sailorsco.github.io"
+        );
+
+        // Schedule birthday notification for 11 Sept 2025 15:00
+        const now = new Date();
+        const targetDate = new Date("2025-09-11T15:00:00");
+
+        const timeUntil = targetDate.getTime() - now.getTime();
+        if (timeUntil > 0) {
+          setTimeout(() => {
+            sendNotification(
+              "It's SailorsCo's birthday today",
+              "Since its our birthday today you will get discounds on our site, click this notification to collect your cupon",
+              "https://sailors.co/img/sailors-tv.png",
+              "https://sailorsco.github.io"
+            );
+          }, timeUntil);
+        }
+      } else {
+        alert("You need to allow notifications to receive updates.");
+      }
+    });
+  </script>
+</body>
+</html>
