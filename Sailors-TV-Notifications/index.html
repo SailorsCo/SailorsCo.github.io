@@ -1,128 +1,22 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PushAlert Demo Page</title>
+  <meta charset="utf-8">
+  <title>PushAlert Test Page</title>
 
   <!-- PushAlert -->
   <script type="text/javascript">
     (function(d, t) {
       var g = d.createElement(t),
           s = d.getElementsByTagName(t)[0];
-      // Replace the src value below with your real PushAlert integrate_xxxxx.js
-      g.src = "https://cdn.pushalert.co/integrate_d0edb5289c58fdddcd5f5585a219aaa8.js";
+      g.src = "I WILL CHANGE THIS LATER"; 
       s.parentNode.insertBefore(g, s);
     }(document, "script"));
   </script>
   <!-- End PushAlert -->
-
-  <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 0; padding: 2rem; background:#f7f7fb; color:#111; }
-    .card { max-width:720px; margin: 2rem auto; background:white; padding:1.6rem; border-radius:12px; box-shadow:0 6px 24px rgba(16,24,40,.08); }
-    h1 { margin-top:0; }
-    .btn { display:inline-block; padding:.6rem 1rem; border-radius:8px; border:0; background:#0b5fff; color:white; cursor:pointer; font-weight:600; }
-    .btn[disabled]{ opacity:.5; cursor:not-allowed; }
-    .note { margin-top:.8rem; color:#555; font-size:.95rem; }
-    pre { background:#f1f5f9; padding: .6rem; border-radius:8px; overflow:auto; }
-  </style>
 </head>
-<body>
-  <div class="card">
-    <h1>PushAlert opt-in demo</h1>
-    <p>Click the button below to trigger the PushAlert subscribe flow (if your integration script exposes a subscribe function).</p>
-
-    <button id="subscribeBtn" class="btn">Subscribe to Notifications</button>
-    <div class="note" id="status">Status: waiting</div>
-
-    <hr style="margin:1.4rem 0">
-
-    <h3>Quick checks</h3>
-    <ul>
-      <li>Make sure you replaced <code>I WILL CHANGE THIS LATER</code> with your PushAlert integrate script URL.</li>
-      <li>Ensure you have uploaded <code>/sw.js</code> to your site root (if you use your own service worker).</li>
-      <li>Test in a regular browser window (not private/incognito) and on HTTPS.</li>
-    </ul>
-
-    <h4>Console tip</h4>
-    <pre>// Open browser console for debug messages (F12 → Console)</pre>
-  </div>
-
-  <script>
-    // Register service worker (optional; only if you uploaded /sw.js)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(function(reg) {
-          console.log('Service worker registered:', reg);
-          document.getElementById('status').textContent = 'Status: service worker registered';
-        })
-        .catch(function(err) {
-          console.warn('Service worker registration failed:', err);
-          // Not fatal — PushAlert may still work if using its hosted worker.
-        });
-    } else {
-      console.log('Service workers not supported in this browser.');
-    }
-
-    // Subscribe button behavior
-    (function() {
-      var btn = document.getElementById('subscribeBtn');
-      var status = document.getElementById('status');
-
-      function setStatus(msg) {
-        status.textContent = 'Status: ' + msg;
-        console.log(msg);
-      }
-
-      btn.addEventListener('click', function() {
-        setStatus('button clicked — attempting to subscribe...');
-
-        // Common PushAlert manual trigger used by many tutorials:
-        // pushalert_subscribe();  -> check if present
-        if (typeof window.pushalert_subscribe === 'function') {
-          try {
-            window.pushalert_subscribe();
-            setStatus('called pushalert_subscribe() — check browser prompt');
-            return;
-          } catch (e) {
-            console.error(e);
-          }
-        }
-
-        // Another possible integration name some implementations expose:
-        if (window.PushAlert && typeof window.PushAlert.subscribe === 'function') {
-          try {
-            window.PushAlert.subscribe();
-            setStatus('called PushAlert.subscribe() — check browser prompt');
-            return;
-          } catch (e) {
-            console.error(e);
-          }
-        }
-
-        // Generic fallback: calling the dataset-based trigger many services use
-        // (this is not guaranteed — keep for debugging)
-        if (typeof window.requestNotificationPermission === 'function') {
-          try {
-            window.requestNotificationPermission();
-            setStatus('called requestNotificationPermission() — check browser prompt');
-            return;
-          } catch (e) {
-            console.error(e);
-          }
-        }
-
-        // If none of the above functions are available, show guidance:
-        setStatus('PushAlert script not loaded or manual trigger function not found.');
-        alert(
-          'PushAlert integration script does not appear to be loaded yet, or the manual trigger function is not available.\n\n' +
-          '1) Replace the placeholder src in the <script> tag in the page <head> with your integrate_xxxxx.js URL.\n' +
-          '2) Ensure the script successfully loads (check Console/network tab).\n' +
-          '3) If you use manual trigger mode in PushAlert, the dashboard docs will show the function name to call — update this button code accordingly.'
-        );
-      });
-    })();
-  </script>
+<body style="background:#fff;">
 </body>
 </html>
+
 
