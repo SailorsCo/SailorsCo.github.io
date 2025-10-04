@@ -1,25 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Search Bar with Suggestions + Voice</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sailors Browser — Home</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: url("https://SailorsCo.github.io/cdn/img/Black-Camo-Wallpaper.png")
-        no-repeat center center fixed;
-      background-size: cover;
-      margin: 0;
-      flex-direction: column;
+    :root{
+      --outline-color: #8654ff; /* theme-controlled outline */
+      --accent-light: #bb9fff; /* used for search container border */
+      --text-purple: #6f34ff;
+      --bg-overlay-dark: rgba(0,0,0,0.35);
     }
+
+    /* Reset + basic layout */
+    *{box-sizing:border-box}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      flex-direction:column;
+      min-height:100vh;
+      background-position:center center;
+      background-repeat:no-repeat;
+      background-size:cover;
+      position:relative;
+      transition:background 0.25s ease;
+    }
+
+    /* overlay used to darken wallpaper in dark mode (applies when needed) */
+    #wallpaperOverlay{
+      pointer-events:none;
+      position:fixed;
+      inset:0;
+      background:transparent;
+      transition:background 0.25s ease;
+      z-index:1;
+    }
+
+    /* Clock top-left */
+    #clock {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: white;
+      color: var(--outline-color);
+      border: 2px solid var(--outline-color);
+      border-radius: 10px;
+      padding: 8px 15px;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      font-family: "Courier New", monospace;
+      z-index: 200;
+    }
+
+    /* Menu + Settings top-right */
+    .top-controls{
+      position:absolute;
+      top:12px;
+      right:12px;
+      display:flex;
+      gap:10px;
+      z-index:200;
+      align-items:center;
+    }
+
+    /* Settings button (left of menu) */
+    #settingsButton {
+      background: white;
+      border: 2px solid #6f34ff; /* note: fixed color per your request */
+      border-radius: 10px;
+      padding: 8px;
+      cursor: pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    #settingsButton img { width:30px; height:30px; display:block; }
+
+    /* Menu button (right) */
+    #menuButton {
+      background-color: white;
+      border: 2px solid var(--outline-color);
+      border-radius: 10px;
+      padding: 8px;
+      cursor: pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    #menuButton img { width:30px; height:30px; display:block; }
+
+    /* Dropdown containers */
+    .dropdown {
+      display:none;
+      position:absolute;
+      background:white;
+      border:2px solid var(--outline-color);
+      border-radius:10px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.15);
+      padding:12px;
+      z-index: 300;
+    }
+
+    /* Settings dropdown placed left of menu button */
+    #settingsDropdown {
+      right: 75px;
+      top: 50px;
+      width: 360px;
+    }
+
+    /* Appearance panel (nested) */
+    #appearancePanel {
+      right: 75px;
+      top: 50px;
+      width: 520px;
+      display:none;
+    }
+
+    /* Menu dropdown (the 5x3 grid) */
+    #dropdownMenu {
+      right: 15px;
+      top: 65px;
+      width: calc(3 * 70px + 2 * 15px + 30px); /* grid width */
+      padding:15px;
+    }
+
+    /* grid for menu */
+    .menu-grid{
+      display:grid;
+      grid-template-columns:repeat(3,70px);
+      grid-gap:15px;
+      justify-content:center;
+      align-items:center;
+    }
+    .menu-item{
+      width:70px;height:70px;background:white;border:2px solid var(--outline-color);border-radius:15px;
+      display:flex;justify-content:center;align-items:center;cursor:pointer;transition:transform .15s;
+    }
+    .menu-item:hover{transform:scale(1.08);background:#fafaff}
+    .menu-item img{width:40px;height:40px;display:block}
+
+    /* Search container (same as before but uses css variables) */
     .search-container {
       display: flex;
-      border: 5px solid #bb9fff;
+      border: 5px solid var(--accent-light);
       border-radius: 40px;
       overflow: hidden;
       background-color: white;
@@ -29,135 +156,223 @@
       max-width: 90%;
       position: relative;
       flex-direction: column;
+      margin-top: 60px;
+      z-index: 50;
     }
-    .search-bar {
-      display: flex;
-      width: 100%;
-      align-items: center;
+    .search-bar { display:flex; width:100%; align-items:center }
+    .search-bar button{ background:none;border:none;cursor:pointer;padding:10px;margin:3.7px }
+    .search-bar button img{width:30px;height:30px}
+    .search-bar input[type="text"]{
+      border:none;padding:12px 20px;font-size:16px;outline:none;flex:1;color:var(--text-purple)
     }
-    .search-bar button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 10px;
-      margin: 3.7px;
-    }
-    .search-bar button img {
-      width: 30px;
-      height: 30px;
-    }
-    .search-bar input[type="text"] {
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      outline: none;
-      flex: 1;
-      color: #6f34ff;
-    }
-    .search-bar input[type="text"]::placeholder {
-      color: #6f34ff;
-      opacity: 1;
-    }
-    .search-container:focus-within {
-      border-color: #6f34ff;
-    }
+    .search-bar input[type="text"]::placeholder{ color: var(--text-purple); opacity:1 }
+    .search-container:focus-within{ border-color: var(--text-purple) }
+
     .suggestions {
       display: none;
       width: 100%;
       background: white;
-      border-top: 1px solid #bb9fff;
+      border-top: 1px solid var(--accent-light);
       border-radius: 0 0 20px 20px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      z-index: 10;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 110;
     }
-    .suggestions div {
-      padding: 10px;
-      cursor: pointer;
-      color: #6f34ff;
-    }
-    .suggestions div:hover {
-      background-color: #f0f0f0;
-    }
+    .suggestions div{ padding:10px; cursor:pointer; color: var(--text-purple) }
+    .suggestions div:hover{ background:#f0f0f0 }
 
-    /* ✅ Clock */
-    #clock {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background-color: white;
-      color: #8654ff;
-      border: 2px solid #8654ff;
-      border-radius: 10px;
-      padding: 8px 15px;
-      font-size: 18px;
-      font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      font-family: "Courier New", monospace;
-    }
-
-    /* ✅ Shortcuts */
+    /* Shortcuts row (below search) */
     .shortcuts-container {
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 15px;
-      margin-top: 25px;
+      margin-top: 18px;
+      z-index:50;
     }
     .shortcut {
       width: 70px;
       height: 70px;
       background: white;
-      border: 2px solid #8654ff;
+      border: 2px solid var(--outline-color);
       border-radius: 15px;
       display: flex;
       justify-content: center;
       align-items: center;
       position: relative;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      transition: transform 0.18s ease;
     }
-    .shortcut:hover {
-      transform: scale(1.05);
-    }
-    .shortcut img {
-      width: 35px;
-      height: 35px;
-      border-radius: 8px;
-    }
+    .shortcut:hover { transform: scale(1.05) }
+    .shortcut img{ width:35px;height:35px;border-radius:8px }
     .delete-btn {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background: red;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 10px;
-      padding: 3px 5px;
-      cursor: pointer;
-      display: none;
+      position:absolute;top:-10px;right:-10px;background:red;color:white;border:none;border-radius:8px;font-size:10px;padding:3px 5px;cursor:pointer;display:none;
     }
-    footer {
-      position: absolute;
-      bottom: 10px;
-      text-align: center;
-      color: white;
-      font-size: 14px;
+
+    /* Settings dropdown inner layout */
+    .setting-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 6px; border-radius:6px; }
+    .setting-row .label { font-weight:600; color:#333 }
+    .settings-button{ padding:8px 10px; border-radius:8px; background:#f2f2ff; border:1px solid var(--outline-color); cursor:pointer }
+    .settings-button:hover{ filter:brightness(.98) }
+    select, button, input[type="file"]{ font-size:14px }
+
+    /* Appearance panel details */
+    .appearance-section { margin-top:8px; padding:8px; border-radius:8px; background:#fff; border:1px solid #eee }
+    .wallpaper-row { display:flex; gap:10px; align-items:center; margin-bottom:10px }
+    .wall-thumb { width:90px; height:60px; border:2px solid #ddd; border-radius:8px; overflow:hidden; cursor:pointer; display:flex; align-items:center; justify-content:center }
+    .wall-thumb img{ width:100%; height:100%; object-fit:cover }
+    .appearance-head { display:flex; justify-content:space-between; align-items:center }
+
+    /* small X close button in appearance panel */
+    .appearance-close {
+      background:#fff;border:2px solid var(--outline-color); border-radius:6px;padding:4px 7px; cursor:pointer;
     }
-    footer a {
-      color: #bb9fff;
-      font-weight: bold;
-      text-decoration: none;
-    }
-    footer a:hover {
-      text-decoration: underline;
-    }
+
+    /* Footer */
+    footer { position: fixed; bottom:10px; left:0; right:0; text-align:center; color:white; font-size:14px; z-index:30 }
+    footer a{ color:var(--accent-light); font-weight:bold; text-decoration:none }
+    footer a:hover{text-decoration:underline}
+
+    /* Theme-specific small tweaks for Light mode */
+    body.light-mode * { color: #111 !important }
+    body.light-mode .search-container { box-shadow: 0 2px 6px rgba(0,0,0,0.06) }
   </style>
 </head>
 <body>
+
+  <!-- wallpaper dark overlay -->
+  <div id="wallpaperOverlay"></div>
+
+  <!-- Clock -->
   <div id="clock">00:00:00</div>
 
+  <!-- Top controls: settings + menu -->
+  <div class="top-controls">
+    <button id="settingsButton" title="Settings">
+      <img src="https://sailorsco.github.io/cdn/img/Settings-Icon.png" alt="Settings">
+    </button>
+
+    <button id="menuButton" title="Menu">
+      <img src="https://sailorsco.github.io/cdn/img/Menu-Icon.png" alt="Menu">
+    </button>
+  </div>
+
+  <!-- Menu dropdown (5 rows x 3 columns = 15) -->
+  <div id="dropdownMenu" class="dropdown">
+    <div class="menu-grid">
+      <div class="menu-item" data-url="https://maps.google.com"><img src="https://sl.co/maps.png" alt="Maps" /></div>
+      <div class="menu-item" data-url="https://youtube.com"><img src="https://sl.co/youtube.png" alt="YouTube" /></div>
+      <div class="menu-item" data-url="https://gmail.com"><img src="https://sl.co/gmail.png" alt="Gmail" /></div>
+
+      <div class="menu-item" data-url="https://meet.google.com"><img src="https://sl.co/gmeet.png" alt="GMeet" /></div>
+      <div class="menu-item" data-url="https://chat.google.com"><img src="https://sl.co/gchat.png" alt="GChat" /></div>
+      <div class="menu-item" data-url="https://drive.google.com"><img src="https://sl.co/gdrive.png" alt="GDrive" /></div>
+
+      <div class="menu-item" data-url="https://photos.google.com"><img src="https://sl.co/gphotos.png" alt="GPhotos" /></div>
+      <div class="menu-item" data-url="https://calendar.google.com"><img src="https://sl.co/gcalendar.png" alt="GCalendar" /></div>
+      <div class="menu-item" data-url="https://classroom.google.com"><img src="https://sl.co/Gclass.png" alt="Classroom" /></div>
+
+      <div class="menu-item" data-url="https://sites.google.com/view/MicrosoftSailors"><img src="https://sl.co/SMPortal.png" alt="MS Portal" /></div>
+      <div class="menu-item" data-url="https://canva.com"><img src="https://sl.co/canva.png" alt="Canva" /></div>
+      <div class="menu-item" data-url="https://www.google.com/shopping"><img src="https://sl.co/Gshop.png" alt="Shopping" /></div>
+
+      <div class="menu-item" data-url="https://notebooklm.google.com"><img src="https://sl.co/Notebooklm.png" alt="NotebookLM" /></div>
+      <div class="menu-item" data-url="https://chatgpt.com"><img src="https://sl.co/ChatGPT.png" alt="ChatGPT" /></div>
+      <div class="menu-item" data-url="https://translate.google.com"><img src="https://sl.co/Gtranslate.png" alt="Translate" /></div>
+    </div>
+  </div>
+
+  <!-- Settings dropdown -->
+  <div id="settingsDropdown" class="dropdown">
+    <!-- Sailors Account -->
+    <div class="setting-row">
+      <div class="label">Sailors Account</div>
+      <button class="settings-button" id="openAccount">Open</button>
+    </div>
+
+    <!-- Change Search Engine -->
+    <div class="setting-row" style="margin-top:8px;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div class="label">Change Search Engine</div>
+        <div style="font-size:12px;color:#666">Select which engine the search bar uses</div>
+      </div>
+      <select id="searchEngineSelect" title="Search engine">
+        <!-- options inserted by JS -->
+      </select>
+    </div>
+
+    <!-- Appearance (opens nested panel) -->
+    <div class="setting-row" style="margin-top:8px;">
+      <div class="label">Appearance</div>
+      <button class="settings-button" id="openAppearance">Open</button>
+    </div>
+
+    <!-- Reset Settings -->
+    <div class="setting-row" style="margin-top:12px;">
+      <div class="label">Reset Settings</div>
+      <button class="settings-button" id="resetSettings">Reset</button>
+    </div>
+
+    <!-- Download Extension -->
+    <div class="setting-row" style="margin-top:12px;">
+      <div class="label">Download Extension</div>
+      <button class="settings-button" id="downloadExtension">Open</button>
+    </div>
+  </div>
+
+  <!-- Appearance panel (nested) -->
+  <div id="appearancePanel" class="dropdown">
+    <div class="appearance-head">
+      <h3 style="margin:0">Appearance</h3>
+      <div style="display:flex;gap:8px;">
+        <button class="appearance-close" id="appearanceClose">X</button>
+      </div>
+    </div>
+
+    <!-- Wallpapers -->
+    <div class="appearance-section" style="margin-top:10px;">
+      <div style="font-weight:700;margin-bottom:6px">Wallpapers</div>
+      <div class="wallpaper-row">
+        <div class="wall-thumb" data-index="0" title="Black Camo (default)"><img src="https://SailorsCo.github.io/cdn/img/Black-Camo-Wallpaper.png" alt="Black Camo"></div>
+        <div class="wall-thumb" data-index="1" title="Black Flow"><img src="https://SailorsCo.github.io/cdn/img/Black-Flow-Wallpaper.png" alt="Black Flow"></div>
+        <div class="wall-thumb" data-index="2" title="White Flow"><img src="https://SailorsCo.github.io/cdn/img/White%20Flow%20Wallpaper.png" alt="White Flow"></div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <label for="uploadWallpaper" class="settings-button" style="display:inline-block;cursor:pointer;padding:8px">Upload Wallpaper</label>
+          <input id="uploadWallpaper" type="file" accept=".png,.jpg,.jpeg" style="display:none">
+        </div>
+      </div>
+      <div style="font-size:12px;color:#666">Uploaded wallpaper will replace current and persist.</div>
+    </div>
+
+    <!-- Mode -->
+    <div class="appearance-section" style="margin-top:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:700">Mode</div>
+        <select id="modeSelect" title="Mode">
+          <option value="light">Light Mode</option>
+          <option value="dark">Dark Mode</option>
+          <option value="system">System</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:#666;margin-top:6px">In Dark mode wallpapers are darkened (except first two).</div>
+    </div>
+
+    <!-- Theme -->
+    <div class="appearance-section" style="margin-top:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:700">Theme</div>
+        <select id="themeSelect" title="Theme">
+          <option value="purple">Purple</option>
+          <option value="blue">Blue</option>
+          <option value="black">Black</option>
+          <option value="white">White</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:#666;margin-top:6px">White theme allowed only with first or second wallpaper.</div>
+    </div>
+  </div>
+
+  <!-- Search area -->
   <form class="search-container" id="searchForm">
     <div class="search-bar">
       <button type="submit">
@@ -169,114 +384,456 @@
         id="searchInput"
         name="query"
         placeholder="Search the Internet..."
+        autocomplete="off"
         required
       />
 
-      <button type="button" id="voiceButton">
+      <button type="button" id="voiceButton" title="Voice">
         <img src="https://SailorsCo.github.io/cdn/img/Microphone-Icon.png" alt="Voice Search" />
       </button>
     </div>
     <div class="suggestions" id="suggestions"></div>
   </form>
 
-  <!-- ✅ Shortcuts row -->
-  <div class="shortcuts-container" id="shortcuts"></div>
+  <!-- Shortcuts row (below search) -->
+  <div class="shortcuts-container" id="shortcuts" aria-label="Shortcuts"></div>
 
+  <!-- Footer -->
   <footer>
     Copyright © 2025
-    <a
-      href="https://sites.google.com/view/SailorsCo/products/Sailors-Browser/Copyright"
-      target="_blank"
-      ><b>Sailors Browser</b></a
-    >
+    <a href="https://sites.google.com/view/SailorsCo/products/Sailors-Browser/Copyright" target="_blank"><b>Sailors Browser</b></a>
     All rights reserved
   </footer>
 
   <script>
+    /**********************
+     * Initialization / state
+     **********************/
+    const defaultState = {
+      searchEngine: "Google",
+      theme: "purple",
+      mode: "dark",
+      wallpaperIndex: 0, // 0: Black Camo (default), 1: Black Flow, 2: White Flow, 3+: uploaded/custom
+      uploadedWallpaper: null
+    };
+
+    // available search engines mapping to search URL format (use {q} placeholder)
+    const SEARCH_ENGINES = {
+      "Google": "https://www.google.com/search?q={q}",
+      "Bing": "https://www.bing.com/search?q={q}",
+      "Startpage": "https://www.startpage.com/do/dsearch?query={q}",
+      "Qwant": "https://www.qwant.com/?q={q}",
+      "Ecosia": "https://www.ecosia.org/search?q={q}",
+      "Duck Duck Go": "https://duckduckgo.com/?q={q}",
+      "Brave": "https://search.brave.com/search?q={q}",
+      "Sailors Engine (Beta)": "https://cse.google.com/cse?cx=d1e0fd6ddd5644f5d&q={q}",
+      "YouTube": "https://www.youtube.com/results?search_query={q}",
+      "GScholer": "https://scholar.google.com/scholar?q={q}",
+      "Google Drive": "https://drive.google.com/drive/search?q={q}",
+      "Yahoo": "https://search.yahoo.com/search?p={q}",
+      "Reddit": "https://www.reddit.com/search/?q={q}",
+      "Pinterest": "https://in.pinterest.com/search/pins/?q={q}",
+      "Wikipedia": "https://en.wikipedia.org/w/index.php?search={q}",
+      "Twitter (X)": "https://twitter.com/search?q={q}"
+    };
+
+    // wallpaper list (default public images)
+    const WALLPAPERS = [
+      "https://SailorsCo.github.io/cdn/img/Black-Camo-Wallpaper.png",    // index 0
+      "https://SailorsCo.github.io/cdn/img/Black-Flow-Wallpaper.png",    // index 1
+      "https://SailorsCo.github.io/cdn/img/White%20Flow%20Wallpaper.png" // index 2 (note encoded space)
+    ];
+
+    // Load saved state or defaults
+    const saved = JSON.parse(localStorage.getItem("sailorsSettings") || "null");
+    const state = Object.assign({}, defaultState, saved || {});
+    // If uploaded stored, make sure it remains
+    if(saved && saved.uploadedWallpaper) state.uploadedWallpaper = saved.uploadedWallpaper;
+
+    // elements
+    const clockEl = document.getElementById("clock");
+    const menuButton = document.getElementById("menuButton");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const settingsButton = document.getElementById("settingsButton");
+    const settingsDropdown = document.getElementById("settingsDropdown");
+    const appearancePanel = document.getElementById("appearancePanel");
+    const appearanceClose = document.getElementById("appearanceClose");
+    const openAppearanceBtn = document.getElementById("openAppearance");
+    const openAccountBtn = document.getElementById("openAccount");
+    const downloadExtensionBtn = document.getElementById("downloadExtension");
+    const searchEngineSelect = document.getElementById("searchEngineSelect");
+    const themeSelect = document.getElementById("themeSelect");
+    const modeSelect = document.getElementById("modeSelect");
+    const uploadInput = document.getElementById("uploadWallpaper");
+    const wallpaperThumbs = document.querySelectorAll(".wall-thumb");
+    const wallpaperOverlay = document.getElementById("wallpaperOverlay");
+    const shortcutsContainer = document.getElementById("shortcuts");
     const searchForm = document.getElementById("searchForm");
     const searchInput = document.getElementById("searchInput");
     const suggestionsBox = document.getElementById("suggestions");
     const voiceButton = document.getElementById("voiceButton");
-    const shortcutsContainer = document.getElementById("shortcuts");
+    const resetSettingsBtn = document.getElementById("resetSettings");
 
-    // ✅ Clock
-    function updateClock() {
-      const clock = document.getElementById("clock");
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      const seconds = String(now.getSeconds()).padStart(2, "0");
-      clock.textContent = `${hours}:${minutes}:${seconds}`;
+    /**********************
+     * Utility helpers
+     **********************/
+    function saveState(){
+      localStorage.setItem("sailorsSettings", JSON.stringify(state));
     }
-    setInterval(updateClock, 1000);
+    function setBodyWallpaper(){
+      // If uploaded wallpaper present & wallpaperIndex >=3 assume uploaded; else use WALLPAPERS
+      let url = "";
+      if(state.wallpaperIndex >= 3 && state.uploadedWallpaper){
+        url = state.uploadedWallpaper;
+      } else {
+        url = WALLPAPERS[state.wallpaperIndex] || WALLPAPERS[0];
+      }
+      document.body.style.backgroundImage = `url("${url}")`;
+      applyDarkOverlayIfNeeded();
+    }
+
+    function applyDarkOverlayIfNeeded(){
+      // Dark mode: if state.mode === 'dark' OR (mode === 'system' && prefers dark)
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const effectiveMode = state.mode === 'system' ? (prefersDark ? 'dark' : 'light') : state.mode;
+      if(effectiveMode === 'dark'){
+        // darken unless wallpaper index is 0 or 1
+        if(state.wallpaperIndex === 0 || state.wallpaperIndex === 1){
+          wallpaperOverlay.style.background = 'transparent';
+        } else {
+          wallpaperOverlay.style.background = 'var(--bg-overlay-dark)';
+        }
+        document.body.classList.remove('light-mode');
+      } else {
+        wallpaperOverlay.style.background = 'transparent';
+        if(effectiveMode === 'light') document.body.classList.add('light-mode');
+        else document.body.classList.remove('light-mode');
+      }
+    }
+
+    function applyTheme(){
+      // change --outline-color and other variables based on state.theme
+      if(state.theme === 'purple'){
+        document.documentElement.style.setProperty('--outline-color', '#8654ff');
+        document.documentElement.style.setProperty('--accent-light','#bb9fff');
+        document.documentElement.style.setProperty('--text-purple','#6f34ff');
+      } else if(state.theme === 'blue'){
+        document.documentElement.style.setProperty('--outline-color', '#4277ff');
+        document.documentElement.style.setProperty('--accent-light','#9fbfff');
+        document.documentElement.style.setProperty('--text-purple','#4277ff');
+      } else if(state.theme === 'black'){
+        document.documentElement.style.setProperty('--outline-color', '#000000');
+        document.documentElement.style.setProperty('--accent-light','#666666');
+        document.documentElement.style.setProperty('--text-purple','#000000');
+      } else if(state.theme === 'white'){
+        document.documentElement.style.setProperty('--outline-color', '#ffffff');
+        document.documentElement.style.setProperty('--accent-light','#ffffff');
+        document.documentElement.style.setProperty('--text-purple','#ffffff');
+      }
+      // re-apply overlay (in case theme affects visuals)
+      applyDarkOverlayIfNeeded();
+    }
+
+    function normalizeUrl(url){
+      url = url.trim();
+      if(!/^https?:\/\//i.test(url)){
+        url = 'https://' + url;
+      }
+      return url;
+    }
+
+    // Search submit handler uses selected engine
+    function getSearchUrl(query){
+      const engine = state.searchEngine || defaultState.searchEngine;
+      const template = SEARCH_ENGINES[engine] || SEARCH_ENGINES['Google'];
+      return template.replace('{q}', encodeURIComponent(query));
+    }
+
+    /**********************
+     * Clock
+     **********************/
+    function updateClock(){
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const ss = String(now.getSeconds()).padStart(2,'0');
+      clockEl.textContent = `${hh}:${mm}:${ss}`;
+    }
+    setInterval(updateClock,1000);
     updateClock();
 
-    // ✅ Search Suggestions
-    function showSuggestions(query) {
-      if (!query) {
-        suggestionsBox.style.display = "none";
+    /**********************
+     * Menu & Settings toggles
+     **********************/
+    menuButton.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+      // hide settings if open
+      settingsDropdown.style.display = 'none';
+      appearancePanel.style.display = 'none';
+    });
+
+    settingsButton.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      settingsDropdown.style.display = settingsDropdown.style.display === 'block' ? 'none' : 'block';
+      // hide menu if open
+      dropdownMenu.style.display = 'none';
+      appearancePanel.style.display = 'none';
+      positionSettingsDropdown();
+    });
+
+    // close dropdowns when clicking outside
+    document.addEventListener('click', (e)=>{
+      if(!dropdownMenu.contains(e.target) && !menuButton.contains(e.target)) dropdownMenu.style.display = 'none';
+      if(!settingsDropdown.contains(e.target) && !settingsButton.contains(e.target)) {
+        settingsDropdown.style.display = 'none';
+        // close appearance panel as well
+        appearancePanel.style.display = 'none';
+      }
+    });
+
+    // menu grid click -> open links
+    document.querySelectorAll('#dropdownMenu .menu-item').forEach( item=>{
+      item.addEventListener('click', ()=>{
+        const url = normalizeUrl(item.getAttribute('data-url'));
+        window.open(url, '_blank');
+      });
+    });
+
+    // adjust position of settings dropdown (so it sits left of menu)
+    function positionSettingsDropdown(){
+      // it's positioned with CSS right:75px top:50px — should be fine; keep placeholder in case
+    }
+
+    /**********************
+     * Settings actions
+     **********************/
+    openAccountBtn.addEventListener('click', ()=>{
+      window.open('https://sites.google.com/view/SailorsCo/accounts','_blank');
+    });
+
+    downloadExtensionBtn.addEventListener('click', ()=>{
+      window.open('https://sites.google.com/view/SailorsCo','_blank');
+    });
+
+    // Reset behavior
+    resetSettingsBtn.addEventListener('click', ()=>{
+      if(!confirm('Reset all Sailors Browser settings to defaults?')) return;
+      Object.assign(state, defaultState);
+      state.uploadedWallpaper = null;
+      saveState();
+      applyAllSettings();
+    });
+
+    /**********************
+     * Appearance panel open/close
+     **********************/
+    openAppearanceBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      settingsDropdown.style.display = 'none';
+      appearancePanel.style.display = 'block';
+      // ensure theme select and mode select show current values
+      themeSelect.value = state.theme;
+      modeSelect.value = state.mode;
+      updateThemeOptionAvailability();
+      applyAllSettings();
+    });
+    appearanceClose.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      appearancePanel.style.display = 'none';
+      settingsDropdown.style.display = 'block';
+    });
+
+    /**********************
+     * Search engine select population + behavior
+     **********************/
+    function populateSearchEngines(){
+      const engines = Object.keys(SEARCH_ENGINES);
+      searchEngineSelect.innerHTML = engines.map(e=>`<option value="${e}">${e}</option>`).join('');
+      // set selected
+      searchEngineSelect.value = state.searchEngine || defaultState.searchEngine;
+      // Also populate main settings dropdown (if any duplication not needed)
+      // When changed, save to state
+      searchEngineSelect.addEventListener('change', ()=>{
+        state.searchEngine = searchEngineSelect.value;
+        saveState();
+      });
+    }
+
+    /**********************
+     * Theme & Mode select handlers
+     **********************/
+    themeSelect.addEventListener('change', ()=>{
+      const selected = themeSelect.value;
+      // If user selects white but current wallpaper not allowed, prevent
+      if(selected === 'white' && ![0,1].includes(state.wallpaperIndex)){
+        alert('White theme is only available with the first or second wallpaper.');
+        // revert selection to previous
+        themeSelect.value = state.theme;
+        return;
+      }
+      state.theme = selected;
+      saveState();
+      applyTheme();
+    });
+
+    modeSelect.addEventListener('change', ()=>{
+      state.mode = modeSelect.value;
+      saveState();
+      applyDarkOverlayIfNeeded();
+    });
+
+    function applyAllSettings(){
+      // apply wallpaper
+      setBodyWallpaper();
+      // apply theme
+      applyTheme();
+      // mode
+      applyDarkOverlayIfNeeded();
+      // set UI selects
+      searchEngineSelect.value = state.searchEngine;
+      themeSelect.value = state.theme;
+      modeSelect.value = state.mode;
+      // update wallpaper thumbs selection border
+      updateWallpaperThumbSelection();
+    }
+
+    /**********************
+     * Wallpaper selection / upload
+     **********************/
+    wallpaperThumbs.forEach(thumb=>{
+      thumb.addEventListener('click', ()=>{
+        const idx = Number(thumb.getAttribute('data-index'));
+        state.wallpaperIndex = idx;
+        // clear uploaded wallpaper if switching to default
+        saveState();
+        saveState();
+        saveState();
+        saveState();
+        saveState();
+        saveState();
+        saveState();
+        saveState();
+        state.uploadedWallpaper = state.uploadedWallpaper; // keep if any
+        saveState();
+        applyAllSettings();
+        updateThemeOptionAvailability();
+      });
+    });
+
+    uploadInput.addEventListener('change', (e)=>{
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      const allowed = ['image/png','image/jpeg','image/jpg'];
+      if(!allowed.includes(file.type)){
+        alert('Only PNG/JPG/JPEG accepted.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(evt){
+        const dataUrl = evt.target.result;
+        // store uploaded as wallpaperIndex 3 (custom)
+        state.uploadedWallpaper = dataUrl;
+        state.wallpaperIndex = 3; // custom
+        saveState();
+        applyAllSettings();
+        updateThemeOptionAvailability();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function updateWallpaperThumbSelection(){
+      wallpaperThumbs.forEach(t=>{
+        const idx = Number(t.getAttribute('data-index'));
+        if(idx === state.wallpaperIndex){
+          t.style.outline = `3px solid var(--outline-color)`;
+        } else {
+          t.style.outline = '2px solid #ddd';
+        }
+      });
+    }
+
+    function updateThemeOptionAvailability(){
+      // White theme only allowed if wallpaperIndex is 0 or 1
+      const whiteOption = Array.from(themeSelect.options).find(o=>o.value==='white');
+      if(!whiteOption) return;
+      if([0,1].includes(state.wallpaperIndex)){
+        whiteOption.disabled = false;
+      } else {
+        // if currently white and not allowed, revert to purple
+        if(state.theme === 'white'){
+          state.theme = 'purple';
+          saveState();
+        }
+        whiteOption.disabled = true;
+        if(themeSelect.value === 'white') themeSelect.value = state.theme;
+      }
+    }
+
+    /**********************
+     * Search form behavior
+     **********************/
+    searchForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const q = searchInput.value.trim();
+      if(!q) return;
+      // Use selected engine's template
+      const url = getSearchUrl(q);
+      window.location.href = url;
+    });
+
+    // suggestions behavior (Open as URL / search with active engine)
+    function showSuggestions(query){
+      if(!query){
+        suggestionsBox.style.display = 'none';
         return;
       }
       suggestionsBox.innerHTML = `
         <div id="openUrl">🔗 Open as URL (${query})</div>
-        <div id="googleSearch">🌐 Search on Google: ${query}</div>
+        <div id="engineSearch">🌐 Search with ${state.searchEngine || 'Google'}: ${query}</div>
       `;
-      suggestionsBox.style.display = "block";
-
-      document.getElementById("openUrl").onclick = () => {
-        let url =
-          query.startsWith("http://") || query.startsWith("https://")
-            ? query
-            : "http://" + query;
+      suggestionsBox.style.display = 'block';
+      document.getElementById('openUrl').onclick = ()=>{
+        const url = /^https?:\/\//i.test(query) ? query : 'https://' + query;
         window.location.href = url;
       };
-      document.getElementById("googleSearch").onclick = () => {
-        window.location.href =
-          "https://www.google.com/search?q=" + encodeURIComponent(query);
+      document.getElementById('engineSearch').onclick = ()=>{
+        const url = getSearchUrl(query);
+        window.location.href = url;
       };
     }
 
-    searchInput.addEventListener("input", () => {
-      showSuggestions(searchInput.value.trim());
+    searchInput.addEventListener('input', ()=> showSuggestions(searchInput.value.trim()) );
+    // hide suggestions when clicking outside search form
+    document.addEventListener('click', (e)=>{
+      if(!searchForm.contains(e.target)) suggestionsBox.style.display = 'none';
     });
 
-    searchForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const query = searchInput.value.trim();
-      if (query) {
-        window.location.href =
-          "https://www.google.com/search?q=" + encodeURIComponent(query);
-      }
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!searchForm.contains(e.target)) {
-        suggestionsBox.style.display = "none";
-      }
-    });
-
-    // ✅ Voice
-    voiceButton.addEventListener("click", () => {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("Your browser does not support voice recognition.");
+    /**********************
+     * Voice recognition (as before)
+     **********************/
+    voiceButton.addEventListener('click', ()=>{
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if(!SpeechRecognition){
+        alert('Your browser does not support voice recognition.');
         return;
       }
       const recognition = new SpeechRecognition();
-      recognition.lang = "en-US";
+      recognition.lang = 'en-US';
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
       recognition.start();
-
-      recognition.onresult = (event) => {
-        const spokenText = event.results[0][0].transcript;
-        searchInput.value = spokenText;
-        showSuggestions(spokenText);
+      recognition.onresult = (ev)=>{
+        const text = ev.results[0][0].transcript;
+        searchInput.value = text;
+        showSuggestions(text);
       };
+      recognition.onerror = (err)=> console.error('Speech recognition error:', err);
     });
 
-    // ✅ Shortcuts
+    /**********************
+     * Shortcuts (re-using previous logic) 
+     **********************/
     const defaultShortcuts = [
       "https://youtube.com",
       "https://chatgpt.com",
@@ -285,65 +842,104 @@
       "https://github.com",
       "https://chat.google.com",
     ];
-
-    function loadShortcuts() {
-      let shortcuts = JSON.parse(localStorage.getItem("shortcuts")) || defaultShortcuts;
+    function loadShortcuts(){
+      let shortcuts = JSON.parse(localStorage.getItem('shortcuts') || 'null');
+      if(!shortcuts) {
+        shortcuts = defaultShortcuts.slice();
+        localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
+      }
       renderShortcuts(shortcuts);
     }
+    function renderShortcuts(shortcuts){
+      shortcutsContainer.innerHTML = '';
+      shortcuts.forEach((url, idx)=>{
+        const normalized = normalizeUrl(url);
+        const div = document.createElement('div');
+        div.className = 'shortcut';
+        // use google favicon service for domain
+        div.innerHTML = `<img src="https://www.google.com/s2/favicons?domain=${normalized}" alt="icon">`;
+        div.title = normalized;
+        div.addEventListener('click', ()=> window.open(normalized,'_blank') );
 
-    function renderShortcuts(shortcuts) {
-      shortcutsContainer.innerHTML = "";
-      shortcuts.forEach((url, index) => {
-        const shortcutDiv = document.createElement("div");
-        shortcutDiv.className = "shortcut";
-        shortcutDiv.innerHTML = `<img src="https://www.google.com/s2/favicons?domain=${url}" alt="icon" />`;
-        shortcutDiv.onclick = () => window.open(url, "_blank");
-
-        // Hover delete
-        let hoverTimer;
-        let deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Delete";
-        deleteBtn.className = "delete-btn";
-        deleteBtn.onclick = (e) => {
+        // Delete button logic: appears after 2 seconds continuous hover, hides immediately on leave
+        const del = document.createElement('button');
+        del.className = 'delete-btn';
+        del.textContent = 'Delete';
+        del.addEventListener('click', (e)=>{
           e.stopPropagation();
-          shortcuts.splice(index, 1);
-          localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
+          shortcuts.splice(idx,1);
+          localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
           renderShortcuts(shortcuts);
-        };
-        shortcutDiv.appendChild(deleteBtn);
-
-        shortcutDiv.addEventListener("mouseenter", () => {
-          hoverTimer = setTimeout(() => {
-            deleteBtn.style.display = "block";
-          }, 2000);
         });
+        div.appendChild(del);
 
-        shortcutDiv.addEventListener("mouseleave", () => {
+        let hoverTimer = null;
+        div.addEventListener('mouseenter', ()=>{
+          hoverTimer = setTimeout(()=> { del.style.display = 'block'; }, 2000);
+        });
+        div.addEventListener('mouseleave', ()=>{
           clearTimeout(hoverTimer);
-          deleteBtn.style.display = "none";
+          del.style.display = 'none';
         });
 
-        shortcutsContainer.appendChild(shortcutDiv);
+        shortcutsContainer.appendChild(div);
       });
 
-      // Add shortcut button
-      if (shortcuts.length < 8) {
-        const addDiv = document.createElement("div");
-        addDiv.className = "shortcut";
-        addDiv.innerHTML = `<img src="https://sailorsco.github.io/cdn/img/Plus-Icon.png" alt="Add" />`;
-        addDiv.onclick = () => {
-          const newUrl = prompt("Enter the URL of the shortcut you want to add:");
-          if (newUrl && shortcuts.length < 8) {
-            shortcuts.push(newUrl);
-            localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
-            renderShortcuts(shortcuts);
-          }
-        };
+      // Add button if less than 8
+      if(shortcuts.length < 8){
+        const addDiv = document.createElement('div');
+        addDiv.className = 'shortcut';
+        addDiv.innerHTML = `<img src="https://sailorsco.github.io/cdn/img/Plus-Icon.png" alt="Add">`;
+        addDiv.addEventListener('click', ()=>{
+          const newUrl = prompt('Enter the URL of the shortcut you want to add:');
+          if(!newUrl) return;
+          const arr = shortcuts.slice();
+          arr.push(normalizeUrl(newUrl));
+          if(arr.length > 8) { alert('Max 8 shortcuts'); return; }
+          localStorage.setItem('shortcuts', JSON.stringify(arr));
+          renderShortcuts(arr);
+        });
         shortcutsContainer.appendChild(addDiv);
       }
     }
 
+    /**********************
+     * Initialization calls
+     **********************/
+    // populate search engines
+    populateSearchEngines();
+
+    // set selects to state values
+    themeSelect.value = state.theme;
+    modeSelect.value = state.mode;
+
+    // apply wallpaper & theme & overlay
+    setBodyWallpaper();
+    applyTheme();
+    updateThemeOptionAvailability();
+    updateWallpaperThumbSelection();
+
+    // load shortcuts
     loadShortcuts();
+
+    /**********************
+     * Helpers: persist state when window unloaded (just in case)
+     **********************/
+    window.addEventListener('beforeunload', ()=>{
+      saveState();
+    });
+
+    /**********************
+     * Extra: Allow keyboard Esc to close dropdowns/panels
+     **********************/
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){
+        dropdownMenu.style.display = 'none';
+        settingsDropdown.style.display = 'none';
+        appearancePanel.style.display = 'none';
+        suggestionsBox.style.display = 'none';
+      }
+    });
   </script>
 </body>
 </html>
