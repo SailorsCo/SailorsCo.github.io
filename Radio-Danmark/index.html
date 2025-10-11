@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Radio Player</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#94a3b8;
+      --accent:#06b6d4;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:linear-gradient(180deg,#041324 0%, #081726 100%);
+      color:#e6eef6;
+    }
+    .app {
+      max-width:90%;
+      margin:40px auto;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:18px;
+      padding:20px;
+      box-shadow:0 8px 30px rgba(2,6,23,0.7);
+      display:grid;
+      grid-template-columns:240px 1fr;
+      gap:18px;
+      align-items:start;
+    }
+    .left {
+      background:var(--glass);
+      border-radius:var(--radius);
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:220px;
+      position:relative;
+      overflow:hidden;
+    }
+    .left img {
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      border-radius:10px;
+    }
+    .meta {
+      position:absolute;
+      left:12px;
+      bottom:12px;
+      background:rgba(0,0,0,0.35);
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:14px;
+      color:var(--muted);
+      backdrop-filter: blur(6px);
+    }
+    .right {
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      min-height:220px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:12px;
+    }
+    button.btn {
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      color:#e6eef6;
+      border:1px solid rgba(255,255,255,0.04);
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    button.btn:active{transform:translateY(1px);}
+    .play-btn{font-size:16px;padding:12px 16px;}
+    .small{padding:8px 10px;font-size:13px;}
+    .volume{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    input[type="range"]{
+      accent-color:var(--accent);
+      width:160px;
+      -webkit-appearance:none;
+      height:6px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-radius:999px;
+    }
+    .status{font-size:13px;color:var(--muted);}
+    .spinner{
+      width:18px;height:18px;border-radius:50%;
+      border:2px solid rgba(255,255,255,0.08);
+      border-top-color:var(--accent);
+      animation:spin 1s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:720px){
+      .app{grid-template-columns:1fr;padding:12px;margin:12px;}
+      .left{min-height:180px;}
+      input[type="range"]{width:120px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Single radio player">
+    <div class="left">
+      <img id="stationArt" alt="Station logo"
+           src="https://play-lh.googleusercontent.com/ob7jPvD-CrPNq8ZlCFRsJ3w3u3_uhJUZW0BL8JCaCIl-ARauuZhbbyK74PERSjdq5tQ" />
+      <div class="meta" id="metaText">DR Nyheder</div>
+    </div>
+
+    <div class="right">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="btn play-btn" id="playPauseBtn">▶ Play</button>
+          <button class="btn small" id="liveBtn">Back to Live 🔴</button>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <div class="volume">
+            <button class="btn small" id="muteBtn">🔊</button>
+            <input id="volumeRange" type="range" min="0" max="1" step="0.01" value="1">
+          </div>
+          <div class="status" id="statusArea">Stopped</div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
+        <div class="status" id="hint">Your volume setting is remembered.</div>
+        <div id="loadingIndicator" style="display:flex;align-items:center;gap:8px;visibility:hidden">
+          <div class="spinner" aria-hidden="true"></div><div class="status">Connecting…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="player" crossorigin="anonymous"></audio>
+
+  <script>
+    (function(){
+      const STREAM_URL = 'http://live-icy.gss.dr.dk:8000/A/A02L.mp3';
+      const STATION_NAME = 'DR Nyheder';
+      const player = document.getElementById('player');
+      const playPauseBtn = document.getElementById('playPauseBtn');
+      const liveBtn = document.getElementById('liveBtn');
+      const volumeRange = document.getElementById('volumeRange');
+      const muteBtn = document.getElementById('muteBtn');
+      const statusArea = document.getElementById('statusArea');
+      const loadingIndicator = document.getElementById('loadingIndicator');
+
+      const LS_VOL = 'radioPlayer.volume';
+      const LS_MUTED = 'radioPlayer.muted';
+
+      // Restore volume
+      const savedVol = localStorage.getItem(LS_VOL);
+      const savedMuted = localStorage.getItem(LS_MUTED);
+      if (savedVol !== null) {
+        player.volume = parseFloat(savedVol);
+        volumeRange.value = savedVol;
+      } else {
+        player.volume = 1;
+      }
+      if (savedMuted === 'true') {
+        player.muted = true;
+        muteBtn.textContent = '🔇';
+      } else {
+        player.muted = false;
+        muteBtn.textContent = '🔊';
+      }
+
+      // Set stream
+      player.src = STREAM_URL;
+      player.load();
+
+      function showLoading(show){ loadingIndicator.style.visibility = show ? 'visible' : 'hidden'; }
+      function reflectUIPlaying(isPlaying){
+        playPauseBtn.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
+      }
+
+      async function playStream(){
+        showLoading(true);
+        try{
+          await player.play();
+          reflectUIPlaying(true);
+          statusArea.textContent = 'Playing — ' + STATION_NAME;
+        }catch(err){
+          console.warn('Autoplay blocked', err);
+          statusArea.textContent = 'Click Play to start audio (autoplay blocked).';
+          reflectUIPlaying(false);
+        }finally{
+          showLoading(false);
+        }
+      }
+
+      // Try to autoplay once loaded
+      playStream();
+
+      // Play / Pause button
+      playPauseBtn.addEventListener('click', async ()=>{
+        if (player.paused){
+          await playStream();
+        }else{
+          player.pause();
+          reflectUIPlaying(false);
+          statusArea.textContent = 'Paused';
+        }
+      });
+
+      // Back to Live button
+      liveBtn.addEventListener('click', async ()=>{
+        if (player.paused) {
+          await playStream();
+        } else {
+          // Reconnect to live stream (some browsers cache stream position)
+          player.pause();
+          player.src = STREAM_URL;
+          player.load();
+          await playStream();
+        }
+      });
+
+      // Volume controls
+      volumeRange.addEventListener('input', (e)=>{
+        player.volume = parseFloat(e.target.value);
+        localStorage.setItem(LS_VOL, String(player.volume));
+        if (player.volume === 0){
+          player.muted = true;
+          muteBtn.textContent = '🔇';
+          localStorage.setItem(LS_MUTED, 'true');
+        }else{
+          player.muted = false;
+          muteBtn.textContent = '🔊';
+          localStorage.setItem(LS_MUTED, 'false');
+        }
+      });
+
+      muteBtn.addEventListener('click', ()=>{
+        player.muted = !player.muted;
+        muteBtn.textContent = player.muted ? '🔇' : '🔊';
+        localStorage.setItem(LS_MUTED, String(player.muted));
+      });
+
+      player.addEventListener('playing', ()=>{
+        reflectUIPlaying(true);
+        statusArea.textContent = 'Playing — ' + STATION_NAME;
+        showLoading(false);
+      });
+      player.addEventListener('pause', ()=>{
+        reflectUIPlaying(false);
+        statusArea.textContent = 'Paused';
+      });
+      player.addEventListener('waiting', ()=>{showLoading(true);statusArea.textContent='Buffering…';});
+      player.addEventListener('error', ()=>{
+        showLoading(false);
+        reflectUIPlaying(false);
+        statusArea.textContent = 'Error playing stream.';
+      });
+    })();
+  </script>
+</body>
+</html>
