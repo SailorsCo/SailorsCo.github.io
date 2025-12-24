@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>People Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    background: #f5f5f5;
+  }
+
+  h2 {
+    margin-bottom: 20px;
+  }
+
+  input {
+    width: 320px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  .results a {
+    display: block;
+    padding: 8px;
+    margin: 6px 0;
+    background: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #1a73e8;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .results a:hover {
+    background: #e8f0fe;
+  }
+
+  .results p {
+    color: #555;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<h2>Search People</h2>
+<input id="searchBox" placeholder="Type a name..." oninput="search()">
+<div class="results" id="results"></div>
+
+<script>
+// Your Google Sheet CSV link (published)
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNGn9Y2olPgFNy0sQR2Qd9gdG99-vxFmiUQH0l1Jf7QKWiLkZAhGRY7W5R7btjX6SQkxVfd-MmHmQc/pub?output=csv";
+
+let people = [];
+
+// Load CSV and parse
+fetch(csvUrl)
+  .then(response => response.text())
+  .then(text => {
+    const rows = text.trim().split("\n");
+
+    people = rows.map(row => {
+      // Handle quoted CSV cells
+      const match = row.match(/^"?(.*?)"?,"?(.*?)"?$/);
+      if (!match) return null;
+
+      return {
+        name: match[1].trim(),
+        link: match[2].trim()
+      };
+    }).filter(Boolean);
+  })
+  .catch(err => console.error("Error loading CSV:", err));
+
+// Search function
+function search() {
+  const query = searchBox.value.toLowerCase();
+  results.innerHTML = "";
+
+  if (!query) return;
+
+  const matches = people.filter(p =>
+    p.name.toLowerCase().includes(query)
+  );
+
+  if (matches.length === 0) {
+    results.innerHTML = "<p>No results found.</p>";
+    return;
+  }
+
+  matches.forEach(p => {
+    const a = document.createElement("a");
+    a.href = p.link;
+    a.target = "_blank";
+    a.textContent = p.name;
+    results.appendChild(a);
+  });
+}
+</script>
+
+</body>
+</html>
