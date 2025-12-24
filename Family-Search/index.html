@@ -6,92 +6,141 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 40px;
-    background: #f5f5f5;
+  * {
+    box-sizing: border-box;
   }
 
-  h2 {
-    margin-bottom: 20px;
+  body {
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa, #eef2f7);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 80px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 640px;
+    padding: 0 20px;
+  }
+
+  h1 {
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 30px;
+    color: #202124;
   }
 
   input {
-    width: 320px;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 18px;
+    border-radius: 999px;
+    border: 1px solid #dfe1e5;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(32,33,36,0.15);
+    transition: box-shadow 0.2s ease, border 0.2s ease;
+  }
+
+  input:focus {
+    border-color: #1a73e8;
+    box-shadow: 0 4px 12px rgba(26,115,232,0.25);
+  }
+
+  .results {
+    margin-top: 30px;
   }
 
   .results a {
     display: block;
-    padding: 8px;
-    margin: 6px 0;
+    padding: 14px 16px;
+    margin-bottom: 12px;
     background: #fff;
-    border-radius: 6px;
+    border-radius: 12px;
     text-decoration: none;
     color: #1a73e8;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    font-size: 17px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .results a:hover {
-    background: #e8f0fe;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
   }
 
   .results p {
-    color: #555;
-    font-style: italic;
+    text-align: center;
+    color: #5f6368;
+    margin-top: 20px;
+    font-size: 15px;
+  }
+
+  @media (max-width: 480px) {
+    body {
+      padding-top: 40px;
+    }
+
+    input {
+      font-size: 16px;
+      padding: 12px 16px;
+    }
+
+    .results a {
+      font-size: 16px;
+    }
   }
 </style>
 </head>
 <body>
 
-<h2>Search People</h2>
-<input id="searchBox" placeholder="Type a name..." oninput="search()">
-<div class="results" id="results"></div>
+<div class="container">
+  <h1>Search</h1>
+
+  <input
+    id="searchBox"
+    placeholder="Search names…"
+    oninput="search()"
+    autocomplete="off"
+  >
+
+  <div class="results" id="results"></div>
+</div>
 
 <script>
-// Google Sheet CSV URL (published)
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQNGn9Y2olPgFNy0sQR2Qd9gdG99-vxFmiUQH0l1Jf7QKWiLkZAhGRY7W5R7btjX6SQkxVfd-MmHmQc/pub?output=csv";
 
 let people = [];
 
-// Fetch and parse CSV
 fetch(csvUrl)
-  .then(response => response.text())
+  .then(r => r.text())
   .then(text => {
-    // Normalize line endings and remove empty rows
-    const rows = text.replace(/\r/g, "").trim().split("\n").filter(r => r.trim() !== "");
-
+    const rows = text.replace(/\r/g, "").trim().split("\n").filter(r => r.trim());
     people = rows.map(row => {
-      // Split on the first comma
-      const firstComma = row.indexOf(",");
-      if (firstComma === -1) return null;
-
-      let name = row.slice(0, firstComma).replace(/^"|"$/g, "").trim();
-      let link = row.slice(firstComma + 1).replace(/^"|"$/g, "").trim();
-
-      return { name, link };
+      const i = row.indexOf(",");
+      if (i === -1) return null;
+      return {
+        name: row.slice(0, i).replace(/^"|"$/g, "").trim(),
+        link: row.slice(i + 1).replace(/^"|"$/g, "").trim()
+      };
     }).filter(Boolean);
+  });
 
-    console.log("Loaded rows:", people.length); // Debug: shows number of people loaded
-  })
-  .catch(err => console.error("Error loading CSV:", err));
-
-// Search function
 function search() {
-  const query = searchBox.value.toLowerCase();
+  const q = searchBox.value.toLowerCase();
   results.innerHTML = "";
 
-  if (!query) return;
+  if (!q) return;
 
   const matches = people.filter(p =>
-    p.name.toLowerCase().includes(query)
+    p.name.toLowerCase().includes(q)
   );
 
-  if (matches.length === 0) {
-    results.innerHTML = "<p>No results found.</p>";
+  if (!matches.length) {
+    results.innerHTML = "<p>No results found</p>";
     return;
   }
 
