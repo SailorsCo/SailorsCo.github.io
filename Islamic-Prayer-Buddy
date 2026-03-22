@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Islamic Prayer Buddy</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 10px auto;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .prayer {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .prayer:last-child {
+      border-bottom: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #ffcc00;
+      color: black;
+      margin-top: 15px;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    #countdown {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>Prayer Times - Holbæk Kommune</h1>
+
+  <div class="card" id="times"></div>
+
+  <div class="card">
+    <div id="countdown">Loading countdown...</div>
+  </div>
+
+  <button onclick="showText()">Click me</button>
+
+  <div id="info"></div>
+  <div id="message"></div>
+
+  <audio id="audio"></audio>
+
+  <script>
+    const API_URL = "https://api.aladhan.com/v1/timingsByCity?city=Holbaek&country=Denmark&method=2";
+
+    let prayerTimes = {};
+
+    function showText() {
+      document.getElementById("info").innerText = "This is a prayer time site";
+    }
+
+    async function fetchPrayerTimes() {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      prayerTimes = data.data.timings;
+      displayTimes();
+    }
+
+    function displayTimes() {
+      const container = document.getElementById("times");
+      container.innerHTML = `
+        <div class="prayer"><span>Fajr</span><span>${prayerTimes.Fajr}</span></div>
+        <div class="prayer"><span>Dhuhr</span><span>${prayerTimes.Dhuhr}</span></div>
+        <div class="prayer"><span>Asr</span><span>${prayerTimes.Asr}</span></div>
+        <div class="prayer"><span>Maghrib</span><span>${prayerTimes.Maghrib}</span></div>
+        <div class="prayer"><span>Isha</span><span>${prayerTimes.Isha}</span></div>
+      `;
+    }
+
+    function getNextPrayer() {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      const prayers = [
+        { name: "Fajr", time: prayerTimes.Fajr },
+        { name: "Dhuhr", time: prayerTimes.Dhuhr },
+        { name: "Asr", time: prayerTimes.Asr },
+        { name: "Maghrib", time: prayerTimes.Maghrib },
+        { name: "Isha", time: prayerTimes.Isha }
+      ];
+
+      for (let prayer of prayers) {
+        if (!prayer.time) continue;
+        const [h, m] = prayer.time.split(":");
+        const total = parseInt(h) * 60 + parseInt(m);
+        if (total > currentMinutes) return prayer;
+      }
+
+      return prayers[0]; // next day fajr fallback
+    }
+
+    function updateCountdown() {
+      const next = getNextPrayer();
+      if (!next) return;
+
+      const now = new Date();
+      const [h, m] = next.time.split(":");
+      const target = new Date();
+      target.setHours(h, m, 0);
+
+      if (target < now) {
+        target.setDate(target.getDate() + 1);
+      }
+
+      const diff = target - now;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById("countdown").innerText =
+        `Next prayer: ${next.name} in ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    function checkPrayerTime() {
+      const now = new Date();
+      const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+
+      const prayers = [
+        { name: "Fajr", time: prayerTimes.Fajr, audio: "https://sailorsco.github.io/cdn/audio/prayer1.mp3" },
+        { name: "Dhuhr", time: prayerTimes.Dhuhr, audio: "https://sailorsco.github.io/cdn/audio/prayer2.mp3" },
+        { name: "Asr", time: prayerTimes.Asr, audio: "https://sailorsco.github.io/cdn/audio/prayer3.mp3" },
+        { name: "Maghrib", time: prayerTimes.Maghrib, audio: "https://sailorsco.github.io/cdn/audio/prayer4.mp3" },
+        { name: "Isha", time: prayerTimes.Isha, audio: "https://sailorsco.github.io/cdn/audio/prayer5.mp3" }
+      ];
+
+      prayers.forEach(prayer => {
+        if (prayer.time && currentTime === prayer.time.substring(0,5)) {
+          document.getElementById("message").innerText = `Come pray ${prayer.name}`;
+          const audio = document.getElementById("audio");
+          audio.src = prayer.audio;
+          audio.play();
+        }
+      });
+    }
+
+    async function init() {
+      await fetchPrayerTimes();
+      setInterval(checkPrayerTime, 30000);
+      setInterval(updateCountdown, 1000);
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
