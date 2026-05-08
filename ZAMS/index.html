@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zaladonia Messaging Service</title>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:Arial, Helvetica, sans-serif;
+    }
+
+    body{
+        background:#efefef;
+        height:100vh;
+        overflow:hidden;
+    }
+
+    /* LOGIN PAGE */
+
+    .login-page{
+        width:100%;
+        height:100vh;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .login-title{
+        margin-top:35px;
+        font-size:42px;
+        font-weight:900;
+        text-align:center;
+    }
+
+    .login-box{
+        margin-top:50px;
+        width:500px;
+        background:#f5f5f5;
+        border:4px solid #204b22;
+        border-radius:70px;
+        padding:40px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .logo{
+        width:110px;
+        margin-bottom:35px;
+    }
+
+    .input{
+        width:100%;
+        padding:20px 28px;
+        border-radius:40px;
+        border:4px solid #204b22;
+        margin-bottom:22px;
+        font-size:22px;
+        outline:none;
+        background:white;
+    }
+
+    .login-btn{
+        width:100%;
+        padding:18px;
+        border:none;
+        border-radius:40px;
+        background:#147217;
+        color:white;
+        font-size:28px;
+        font-weight:bold;
+        cursor:pointer;
+        margin-top:5px;
+        transition:0.2s;
+    }
+
+    .login-btn:hover{
+        background:#0f5a12;
+    }
+
+    .forgot{
+        margin-top:30px;
+        color:#148b16;
+        font-size:20px;
+    }
+
+    .footer{
+        position:absolute;
+        bottom:0;
+        width:100%;
+        background:white;
+        border-top:18px solid #d8ae68;
+    }
+
+    .footer-green{
+        width:100%;
+        height:20px;
+        background:#204b22;
+    }
+
+    .footer-content{
+        padding:20px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        flex-wrap:wrap;
+    }
+
+    .footer-left{
+        font-size:20px;
+    }
+
+    .info-btn{
+        background:#204b22;
+        color:white;
+        padding:12px 22px;
+        border-radius:5px;
+        text-decoration:none;
+        font-size:18px;
+    }
+
+    /* APP */
+
+    .app{
+        display:none;
+        height:100vh;
+        width:100%;
+        flex-direction:column;
+    }
+
+    .topbar{
+        height:80px;
+        background:#204b22;
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:0 25px;
+    }
+
+    .topbar-left{
+        display:flex;
+        align-items:center;
+        gap:15px;
+    }
+
+    .topbar-logo{
+        width:45px;
+    }
+
+    .topbar-title{
+        font-size:28px;
+        font-weight:bold;
+    }
+
+    .topbar-right{
+        display:flex;
+        align-items:center;
+        gap:15px;
+    }
+
+    .user-pfp{
+        width:45px;
+        height:45px;
+        border-radius:50%;
+        object-fit:cover;
+        border:2px solid white;
+    }
+
+    .logout-btn{
+        padding:10px 18px;
+        border:none;
+        border-radius:8px;
+        background:#c62828;
+        color:white;
+        cursor:pointer;
+        font-weight:bold;
+    }
+
+    .main{
+        display:flex;
+        flex:1;
+        overflow:hidden;
+    }
+
+    .sidebar{
+        width:350px;
+        background:#f8f8f8;
+        border-right:2px solid #ccc;
+        display:flex;
+        flex-direction:column;
+    }
+
+    .search-box{
+        padding:15px;
+    }
+
+    .search-input{
+        width:100%;
+        padding:12px;
+        border-radius:12px;
+        border:2px solid #204b22;
+        outline:none;
+        font-size:16px;
+    }
+
+    .user-list{
+        overflow-y:auto;
+        flex:1;
+    }
+
+    .user-item{
+        display:flex;
+        align-items:center;
+        gap:15px;
+        padding:15px;
+        cursor:pointer;
+        border-bottom:1px solid #ddd;
+        transition:0.2s;
+    }
+
+    .user-item:hover{
+        background:#ececec;
+    }
+
+    .user-item img{
+        width:55px;
+        height:55px;
+        border-radius:50%;
+        object-fit:cover;
+    }
+
+    .chat-area{
+        flex:1;
+        display:flex;
+        flex-direction:column;
+        background:white;
+    }
+
+    .chat-header{
+        padding:18px;
+        border-bottom:1px solid #ccc;
+        font-size:24px;
+        font-weight:bold;
+    }
+
+    .messages{
+        flex:1;
+        padding:20px;
+        overflow-y:auto;
+    }
+
+    .no-chat{
+        margin:auto;
+        font-size:40px;
+        color:#999;
+    }
+
+    .message{
+        background:#e7f5e7;
+        padding:12px 16px;
+        border-radius:12px;
+        margin-bottom:10px;
+        width:fit-content;
+        max-width:70%;
+    }
+
+    .message.self{
+        background:#204b22;
+        color:white;
+        margin-left:auto;
+    }
+
+    .chat-input-area{
+        padding:15px;
+        border-top:1px solid #ccc;
+        display:none;
+        gap:10px;
+    }
+
+    .chat-input{
+        flex:1;
+        padding:14px;
+        border-radius:12px;
+        border:2px solid #204b22;
+        outline:none;
+    }
+
+    .send-btn{
+        padding:14px 24px;
+        border:none;
+        background:#147217;
+        color:white;
+        border-radius:12px;
+        cursor:pointer;
+        font-weight:bold;
+    }
+
+    @media(max-width:900px){
+        .sidebar{
+            width:100%;
+            max-width:320px;
+        }
+
+        .login-box{
+            width:90%;
+        }
+
+        .login-title{
+            font-size:30px;
+            padding:0 10px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+
+<div class="login-page" id="loginPage">
+
+    <h1 class="login-title">ZALADONIA MESSAGING SERVICE LOGIN</h1>
+
+    <div class="login-box">
+
+        <img class="logo"
+        src="https://sailorsco.github.io/cdn/img%20/Saltanat%20of%20Zaladonia%20Coat%20of%20Arms.png">
+
+        <input type="text" id="username" class="input" placeholder="Username">
+
+        <input type="password" id="password" class="input" placeholder="Password">
+
+        <button class="login-btn" onclick="login()">Login</button>
+
+        <a class="forgot"
+        href="https://sites.google.com/view/zaladonia/idk"
+        target="_blank">
+        Forgot my Username or Password
+        </a>
+
+    </div>
+
+    <div class="footer">
+        <div class="footer-green"></div>
+
+        <div class="footer-content">
+
+            <div class="footer-left">
+                <b>Zaladonia Messaging Service (ZA•MS)</b> |
+                Department of Digital Presence (DODP) |
+                State of Zaladonia © 2026
+            </div>
+
+            <a class="info-btn"
+            href="https://sites.google.com/view/zaladonia/legal"
+            target="_blank">
+            Information and Legal Page for ZM•MS
+            </a>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- APP -->
+
+<div class="app" id="app">
+
+    <div class="topbar">
+
+        <div class="topbar-left">
+
+            <img class="topbar-logo"
+            src="https://sailorsco.github.io/cdn/img%20/Saltanat%20of%20Zaladonia%20Coat%20of%20Arms.png">
+
+            <div class="topbar-title">
+                Zaladonia Messaging Service
+            </div>
+
+        </div>
+
+        <div class="topbar-right">
+
+            <img id="loggedPfp" class="user-pfp">
+
+            <div id="loggedName"></div>
+
+            <button class="logout-btn" onclick="logout()">
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="main">
+
+        <!-- LEFT -->
+
+        <div class="sidebar">
+
+            <div class="search-box">
+                <input type="text"
+                class="search-input"
+                id="searchInput"
+                placeholder="Search people..."
+                oninput="renderUsers()">
+            </div>
+
+            <div class="user-list" id="userList"></div>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="chat-area">
+
+            <div class="chat-header" id="chatHeader">
+                No chat selected
+            </div>
+
+            <div class="messages" id="messages">
+
+                <div class="no-chat" id="noChat">
+                    No chat selected
+                </div>
+
+            </div>
+
+            <div class="chat-input-area" id="chatInputArea">
+
+                <input type="text"
+                id="chatInput"
+                class="chat-input"
+                placeholder="Type a message...">
+
+                <button class="send-btn" onclick="sendMessage()">
+                    Send
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const csvURL =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vR1-zkjR3CxBpd20AugIB04rJ8HYllrKw7a-OmsnbAy3k2b3fi-f2HTEqFCRQZVb03BrT1lm3Hwd9mk/pub?output=csv";
+
+let users = [];
+let currentUser = null;
+let selectedChat = null;
+
+async function loadCSV() {
+
+    const response = await fetch(csvURL);
+    const text = await response.text();
+
+    const rows = text.trim().split("\n").slice(1);
+
+    users = rows.map(row => {
+
+        const cols = row.split(",");
+
+        return {
+            name: cols[0]?.replace(/"/g,'').trim(),
+            username: cols[1]?.replace(/"/g,'').trim(),
+            pfp: cols[2]?.replace(/"/g,'').trim(),
+            password: cols[3]?.replace(/"/g,'').trim()
+        };
+
+    });
+
+    renderUsers();
+}
+
+loadCSV();
+
+function login(){
+
+    const username =
+    document.getElementById("username").value.trim();
+
+    const password =
+    document.getElementById("password").value.trim();
+
+    const foundUser = users.find(u =>
+        u.username === username &&
+        u.password === password
+    );
+
+    if(foundUser){
+
+        currentUser = foundUser;
+
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("app").style.display = "flex";
+
+        document.getElementById("loggedName").textContent =
+        currentUser.name;
+
+        document.getElementById("loggedPfp").src =
+        currentUser.pfp;
+
+    } else {
+        alert("Invalid username or password");
+    }
+}
+
+function logout(){
+
+    currentUser = null;
+
+    document.getElementById("app").style.display = "none";
+    document.getElementById("loginPage").style.display = "flex";
+
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+}
+
+function renderUsers(){
+
+    const list = document.getElementById("userList");
+
+    const search =
+    document.getElementById("searchInput")
+    .value
+    .toLowerCase();
+
+    list.innerHTML = "";
+
+    users
+    .filter(user =>
+        user.name.toLowerCase().includes(search)
+    )
+    .forEach(user => {
+
+        const div = document.createElement("div");
+
+        div.className = "user-item";
+
+        div.innerHTML = `
+            <img src="${user.pfp}">
+            <div>${user.name}</div>
+        `;
+
+        div.onclick = () => openChat(user);
+
+        list.appendChild(div);
+
+    });
+}
+
+function openChat(user){
+
+    selectedChat = user;
+
+    document.getElementById("chatHeader")
+    .textContent = user.name;
+
+    document.getElementById("noChat").style.display = "none";
+
+    document.getElementById("chatInputArea")
+    .style.display = "flex";
+
+    const messages =
+    document.getElementById("messages");
+
+    messages.innerHTML = "";
+}
+
+function sendMessage(){
+
+    const input =
+    document.getElementById("chatInput");
+
+    const text = input.value.trim();
+
+    if(!text) return;
+
+    const messages =
+    document.getElementById("messages");
+
+    const msg = document.createElement("div");
+
+    msg.className = "message self";
+
+    msg.textContent = text;
+
+    messages.appendChild(msg);
+
+    input.value = "";
+
+    messages.scrollTop =
+    messages.scrollHeight;
+}
+
+</script>
+
+</body>
+</html>
