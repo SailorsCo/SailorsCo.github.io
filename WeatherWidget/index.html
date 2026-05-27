@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rounded Weather Box</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0px;
+      background: transparent;
+      font-family: Arial, sans-serif;
+
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    /* Rounded auto-sizing white box */
+    .weather-container {
+      background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 20px;
+      width: fit-content;
+      max-width: 95%;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      overflow: hidden;
+    }
+
+    /* Responsive widget */
+    #ww_6492ffd67f994 {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="weather-container">
+
+    <!-- Weather Widget -->
+    <div id="ww_6492ffd67f994"
+         v='1.3'
+         loc='auto'
+         a='{
+           "t":"horizontal",
+           "lang":"en",
+           "sl_lpl":1,
+           "ids":[],
+           "font":"Arial",
+           "sl_ics":"one_a",
+           "sl_sot":"celsius",
+           "cl_bkg":"#FFFFFF00",
+           "cl_font":"rgba(255,255,255,1)",
+           "cl_cloud":"rgba(255,255,255,1)",
+           "cl_persp":"rgba(255,255,255,1)",
+           "cl_sun":"rgba(207,207,207,1)",
+           "cl_moon":"rgba(207,207,207,1)",
+           "cl_thund":"rgba(207,207,207,1)"
+         }'>
+
+      More forecasts:
+      <a href="https://oneweather.org/orlando/30_days/"
+         id="ww_6492ffd67f994_u"
+         target="_blank">
+         Orlando weather 30 day
+      </a>
+    </div>
+
+  </div>
+
+  <script async src="https://app3.weatherwidget.org/js/?id=ww_6492ffd67f994"></script>
+
+</body>
+</html>
