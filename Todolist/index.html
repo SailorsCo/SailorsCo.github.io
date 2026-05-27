@@ -23,7 +23,9 @@
     .container {
       width: 100%;
       max-width: 500px;
-      background: #ffffff;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-radius: 24px;
       padding: 24px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -33,7 +35,7 @@
     h1 {
       font-size: 1.4rem;
       margin-bottom: 20px;
-      color: #1f2a37;
+      color: white;
       text-align: center;
       transition: 0.3s;
     }
@@ -46,22 +48,36 @@
     input[type="text"] {
       flex: 1;
       padding: 12px;
+      background: transparent;
       border-radius: 10px;
-      border: 1px solid #d1d5db;
+      color: white;
+      border: 1px solid white;
       font-size: 1rem;
       outline: none;
       transition: border 0.2s;
     }
 
+    /* NEW: placeholder styling */
+    input[type="text"]::placeholder {
+      color: white;
+      transition: color 0.3s ease;
+    }
+
+    input[type="text"]:focus::placeholder {
+      color: black;
+    }
+
     input[type="text"]:focus {
-      border-color: #852de3;
+      background: white;
+      color: black;
+      border-color: white;
     }
 
     button {
       padding: 12px 16px;
-      border: none;
+      border: 1px solid white;
       border-radius: 10px;
-      background: #852de3;
+      background: transparent;
       color: white;
       font-weight: bold;
       cursor: pointer;
@@ -69,7 +85,8 @@
     }
 
     button:hover {
-      background: #4b0e8c;
+      background: white;
+      color: black;
       transform: translateY(-1px);
     }
 
@@ -83,21 +100,22 @@
     }
 
     .task-box {
-      background: #f3f6fb;
+      background: transparent;
       padding: 5 6px;
+      border: 1px solid white;
       border-radius: 12px;
       width: 100%;
       word-wrap: break-word;
       font-size: 1rem;
-      color: #111827;
+      color: white;
     }
 
     .complete-btn {
       width: 100%;
       padding: 12px;
       border-radius: 10px;
-      border: none;
-      background: #852de3;
+      border: 1px solid white;
+      background: transparent;
       color: white;
       font-size: 1rem;
       font-weight: bold;
@@ -106,7 +124,8 @@
     }
 
     .complete-btn:hover {
-      background: #4b0e8c;
+      background: white;
+      color: black;
       transform: translateY(-1px);
     }
 
