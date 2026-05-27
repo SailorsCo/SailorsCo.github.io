@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Manager</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #eef2f7, #dfe9f3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      color: #1f2a37;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #4a90e2;
+    }
+
+    button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      background: #4a90e2;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #357ab8;
+      transform: translateY(-1px);
+    }
+
+    .task-view {
+      margin-top: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .task-box {
+      background: #f3f6fb;
+      padding: 16px;
+      border-radius: 12px;
+      width: 100%;
+      word-wrap: break-word;
+      font-size: 1rem;
+      color: #111827;
+    }
+
+    .complete-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #22c55e;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .complete-btn:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.2rem;
+      }
+
+      button, .complete-btn, input[type="text"] {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">What task would you like completed today</h1>
+
+    <div class="input-group" id="inputGroup">
+      <input id="taskInput" type="text" placeholder="Enter your goal for today..." />
+      <button onclick="setTask()">Enter</button>
+    </div>
+
+    <div class="task-view" id="taskView">
+      <div class="task-box" id="taskText"></div>
+      <button class="complete-btn" onclick="resetTask()">Task Completed</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'saved_task';
+
+    function setTask() {
+      const input = document.getElementById('taskInput');
+      const task = input.value.trim();
+      if (!task) return;
+
+      localStorage.setItem(STORAGE_KEY, task);
+
+      document.getElementById('taskText').innerText = task;
+      document.getElementById('title').innerText = 'Task to Complete';
+
+      document.getElementById('inputGroup').style.display = 'none';
+      document.getElementById('taskView').style.display = 'flex';
+
+      input.value = '';
+    }
+
+    function resetTask() {
+      localStorage.removeItem(STORAGE_KEY);
+
+      document.getElementById('title').innerText = 'What task would you like completed today';
+      document.getElementById('inputGroup').style.display = 'flex';
+      document.getElementById('taskView').style.display = 'none';
+    }
+
+    function loadTask() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+
+      document.getElementById('taskText').innerText = saved;
+      document.getElementById('title').innerText = 'Task to Complete';
+      document.getElementById('inputGroup').style.display = 'none';
+      document.getElementById('taskView').style.display = 'flex';
+    }
+
+    window.onload = loadTask;
+  </script>
+</body>
+</html>
