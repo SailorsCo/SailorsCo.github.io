@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daily Quotes Widget</title>
+
+<style>
+  *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI", sans-serif;
+  }
+
+  body{
+    background: transparent;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:0px;
+  }
+
+  .quote-box{
+    width:min(500px);
+    min-height: 225px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:30px;
+    padding:30px;
+    color:white;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    transition:0.3s ease;
+    box-shadow:0 10px 35px rgba(0,0,0,0.3);
+  }
+
+  .top-bar{
+    position:absolute;
+    top:18px;
+    right:20px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .label{
+    font-size:13px;
+    opacity:0.8;
+    user-select:none;
+  }
+
+  .toggle{
+    width:58px;
+    height:30px;
+    background:#1e293b;
+    border-radius:999px;
+    position:relative;
+    cursor:pointer;
+    transition:0.3s ease;
+  }
+
+  .toggle::before{
+    content:"";
+    width:24px;
+    height:24px;
+    background:white;
+    border-radius:50%;
+    position:absolute;
+    top:3px;
+    left:3px;
+    transition:0.3s ease;
+  }
+
+  .toggle.active{
+    background:#22c55e;
+  }
+
+  .toggle.active::before{
+    transform:translateX(28px);
+  }
+
+  .quote{
+    font-size:1.55rem;
+    line-height:1.7;
+    text-align:center;
+    transition:0.3s ease;
+    word-wrap:break-word;
+  }
+
+  .category{
+    margin-top:24px;
+    text-align:center;
+    font-size:0.9rem;
+    opacity:0.7;
+    letter-spacing:1px;
+  }
+
+  @media(max-width:600px){
+    .quote{
+      font-size:1.2rem;
+    }
+
+    .quote-box{
+      padding:28px 20px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="quote-box">
+
+  <div class="top-bar">
+    <span class="label">Normal</span>
+    <div class="toggle" id="toggle"></div>
+  </div>
+
+  <div class="quote" id="quoteText"></div>
+  <div class="category" id="categoryText"></div>
+
+</div>
+
+<script>
+
+const quranQuotes = [
+  "Indeed, with hardship comes ease. — (94:6)",
+  "So remember Me; I will remember you. — (2:152)",
+  "Allah is with the patient. — (2:153)",
+  "And He found you lost and guided you. — (93:7)",
+  "Do not despair of the mercy of Allah. — (39:53)",
+  "My Lord, increase me in knowledge. — (20:114)",
+  "And speak to people kindly. — (2:83)",
+  "Perhaps you dislike a thing and it is good for you. — (2:216)",
+  "Indeed, Allah is Forgiving and Merciful. — (2:173)",
+  "Verily, in the remembrance of Allah do hearts find rest. — (13:28)",
+  "And your Lord is going to give you, and you will be satisfied. — (93:5)",
+  "Indeed, prayer prohibits immorality and wrongdoing. — (29:45)",
+  "So be patient. Indeed, the promise of Allah is truth. — (30:60)",
+  "And He is with you wherever you are. — (57:4)",
+  "Indeed, Allah loves those who do good. — (2:195)",
+  "Indeed, Allah is over all things competent. — (2:20)",
+  "And rely upon Allah; and sufficient is Allah as Disposer of affairs. — (33:3)",
+  "Indeed, Allah does not wrong the people at all. — (10:44)",
+  "And whoever fears Allah — He will make for him a way out. — (65:2)",
+  "Indeed, Allah loves the righteous. — (9:4)",
+  "Call upon Me; I will respond to you. — (40:60)",
+  "Indeed, my Lord is near and responsive. — (11:61)",
+  "And Allah is the best of planners. — (8:30)",
+  "So be patient with gracious patience. — (70:5)",
+  "And He created everything in perfect measure. — (25:2)",
+  "Indeed, Allah is with the doers of good. — (29:69)",
+  "Your Lord has not forsaken you. — (93:3)",
+  "And to Allah belong the best names. — (7:180)",
+  "Indeed, the mercy of Allah is near. — (7:56)",
+  "He knows what is within the hearts. — (67:13)",
+  "And whoever puts trust in Allah, He will be enough for him. — (65:3)"
+];
+
+const normalQuotes = [
+  "Discipline creates freedom.",
+  "Action destroys fear.",
+  "Small steps change lives.",
+  "Consistency beats talent.",
+  "Focus on what matters.",
+  "Comfort kills ambition.",
+  "Pressure builds strength.",
+  "Dreams demand action.",
+  "Growth starts with discomfort.",
+  "Protect your peace.",
+  "Mindset shapes destiny.",
+  "Results respect effort.",
+  "Confidence comes from work.",
+  "Silence speaks power.",
+  "Your habits define you.",
+  "Stay patient and relentless.",
+  "Execution changes everything.",
+  "Hard work stays undefeated.",
+  "Learn. Adapt. Evolve.",
+  "Purpose fuels persistence.",
+  "The work always shows.",
+  "Strength grows in struggle.",
+  "Make progress daily.",
+  "Be stronger than excuses.",
+  "Energy attracts opportunity.",
+  "Lead with integrity.",
+  "Discomfort creates growth.",
+  "Your future needs discipline.",
+  "Stay hungry for improvement.",
+  "Success starts within."
+];
+
+const quoteText = document.getElementById("quoteText");
+const categoryText = document.getElementById("categoryText");
+const toggle = document.getElementById("toggle");
+
+let showingNormal = false;
+
+// GET QUOTE BASED ON DAY OF MONTH
+function getQuoteByDate(quotesArray) {
+
+  const today = new Date();
+
+  // Day number (1-31)
+  const day = today.getDate();
+
+  // Match quote to exact date
+  return quotesArray[(day - 1) % quotesArray.length];
+}
+
+// UPDATE DISPLAYED QUOTE
+function updateQuote() {
+
+  if(showingNormal){
+
+    quoteText.textContent = `"${getQuoteByDate(normalQuotes)}"`;
+    categoryText.textContent = "NORMAL QUOTE";
+
+  } else {
+
+    quoteText.textContent = `"${getQuoteByDate(quranQuotes)}"`;
+    categoryText.textContent = "QURANIC QUOTE";
+
+  }
+}
+
+// TOGGLE SWITCH
+toggle.addEventListener("click", () => {
+
+  showingNormal = !showingNormal;
+
+  toggle.classList.toggle("active");
+
+  updateQuote();
+
+});
+
+// INITIAL LOAD
+updateQuote();
+
+</script>
+
+</body>
+</html>
