@@ -199,17 +199,13 @@ const quoteText = document.getElementById("quoteText");
 const categoryText = document.getElementById("categoryText");
 const toggle = document.getElementById("toggle");
 
-let showingNormal = false;
+// LOAD SAVED STATE
+let showingNormal = localStorage.getItem("showingNormal") === "true";
 
 // GET QUOTE BASED ON DAY OF MONTH
 function getQuoteByDate(quotesArray) {
-
   const today = new Date();
-
-  // Day number (1-31)
   const day = today.getDate();
-
-  // Match quote to exact date
   return quotesArray[(day - 1) % quotesArray.length];
 }
 
@@ -217,15 +213,11 @@ function getQuoteByDate(quotesArray) {
 function updateQuote() {
 
   if(showingNormal){
-
     quoteText.textContent = `"${getQuoteByDate(normalQuotes)}"`;
     categoryText.textContent = "NORMAL QUOTE";
-
   } else {
-
     quoteText.textContent = `"${getQuoteByDate(quranQuotes)}"`;
     categoryText.textContent = "QURANIC QUOTE";
-
   }
 }
 
@@ -233,6 +225,8 @@ function updateQuote() {
 toggle.addEventListener("click", () => {
 
   showingNormal = !showingNormal;
+
+  localStorage.setItem("showingNormal", showingNormal);
 
   toggle.classList.toggle("active");
 
@@ -242,6 +236,11 @@ toggle.addEventListener("click", () => {
 
 // INITIAL LOAD
 updateQuote();
+
+// SET TOGGLE STATE ON LOAD
+if (showingNormal) {
+  toggle.classList.add("active");
+}
 
 </script>
 
