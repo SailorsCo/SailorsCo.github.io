@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Bar</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            background-color: transparent;
+            margin: 0;
+            padding-top: 5px;
+            overflow: hidden;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+
+            border: 2.5px solid #ccc;
+            border-radius: 15px;
+
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 700px;
+            max-width: 90%;
+            padding: 6px;
+
+            /* unified transition timing */
+            transition: border-radius 0.6s ease, border-color 0.3s ease;
+        }
+
+        .search-container input[type="text"] {
+            border: none;
+            padding: 18px 20px;
+            font-size: 16px;
+            outline: none;
+            flex: 1;
+            background: transparent;
+            color: white;
+        }
+
+        .search-container input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* expanded container state */
+        .search-container:focus-within {
+            border: 4px solid white;
+            border-radius: 50px;
+        }
+
+        /* dropdown */
+        .engine-select {
+            border: 1px solid white;
+            outline: none;
+
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+
+            font-size: 14px;
+            font-weight: 500;
+
+            padding: 12px 34px 12px 14px;
+
+            /* default state matches container feel */
+            border-radius: 8px;
+
+            margin-right: 6px;
+
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+
+            text-align: center;
+            text-align-last: center;
+
+            /* SAME SPEED AS CONTAINER */
+            transition: border-radius 0.6s ease, background-color 0.25s ease, color 0.25s ease;
+
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+        }
+
+        .engine-select option {
+            color: black;
+        }
+
+        /* hover effect */
+        .engine-select:hover {
+            background-color: white;
+            color: black;
+
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        /* synchronized rounding with container */
+        .search-container:focus-within .engine-select {
+            border-radius: 50px;
+        }
+
+        .engine-select:focus {
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form class="search-container" id="searchForm">
+        <input id="searchInput" type="text" name="q" required>
+
+        <select id="engineSelect" class="engine-select">
+            <option value="google">Google</option>
+            <option value="brave">Brave</option>
+            <option value="ecosia">Ecosia</option>
+            <option value="youtube">YouTube</option>
+            <option value="github">GitHub</option>
+            <option value="reddit">Reddit</option>
+            <option value="wikipedia">Wikipedia</option>
+        </select>
+    </form>
+
+    <script>
+        const input = document.getElementById("searchInput");
+        const form = document.getElementById("searchForm");
+        const engineSelect = document.getElementById("engineSelect");
+
+        const engines = {
+            google: "https://www.google.com/search?q=",
+            brave: "https://search.brave.com/search?q=",
+            ecosia: "https://www.ecosia.org/search?q=",
+            youtube: "https://www.youtube.com/results?search_query=",
+            github: "https://github.com/search?q=",
+            reddit: "https://www.reddit.com/search/?q=",
+            wikipedia: "https://en.wikipedia.org/w/index.php?search="
+        };
+
+        const savedEngine = localStorage.getItem("searchEngine") || "google";
+        engineSelect.value = savedEngine;
+
+        engineSelect.addEventListener("change", () => {
+            localStorage.setItem("searchEngine", engineSelect.value);
+        });
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const query = input.value.trim();
+            if (!query) return;
+
+            const engine = engineSelect.value;
+            const url = engines[engine] + encodeURIComponent(query);
+
+            window.open(url, "_blank");
+        });
+
+        function setDynamicPlaceholder() {
+            const hour = new Date().getHours();
+            let message = "";
+
+            if (hour >= 5 && hour < 12) {
+                message = "Good morning — ready to start the day?";
+            } else if (hour >= 12 && hour < 17) {
+                message = "Afternoon. Keep the momentum going.";
+            } else if (hour >= 17 && hour < 21) {
+                message = "Good evening — winding down or still working?";
+            } else {
+                message = "Late night — still going or wrapping up?";
+            }
+
+            input.placeholder = message;
+        }
+
+        setDynamicPlaceholder();
+    </script>
+
+</body>
+</html>
