@@ -34,8 +34,9 @@
             max-width: 90%;
             padding: 6px;
 
-            /* unified transition timing */
             transition: border-radius 0.6s ease, border-color 0.3s ease;
+
+            position: relative;
         }
 
         .search-container input[type="text"] {
@@ -52,13 +53,19 @@
             color: rgba(255, 255, 255, 0.85);
         }
 
-        /* expanded container state */
         .search-container:focus-within {
             border: 4px solid white;
             border-radius: 50px;
         }
 
-        /* dropdown */
+        /* NEW: active when suggestions are visible */
+        .search-container.has-suggestions {
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            border-bottom-left-radius: 1px;
+            border-bottom-right-radius: 1px;
+        }
+
         .engine-select {
             border: 1px solid white;
             outline: none;
@@ -71,7 +78,6 @@
 
             padding: 12px 34px 12px 14px;
 
-            /* default state matches container feel */
             border-radius: 8px;
 
             margin-right: 6px;
@@ -84,7 +90,6 @@
             text-align: center;
             text-align-last: center;
 
-            /* SAME SPEED AS CONTAINER */
             transition: border-radius 0.6s ease, background-color 0.25s ease, color 0.25s ease;
 
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -97,7 +102,6 @@
             color: black;
         }
 
-        /* hover effect */
         .engine-select:hover {
             background-color: white;
             color: black;
@@ -105,13 +109,50 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
         }
 
-        /* synchronized rounding with container */
         .search-container:focus-within .engine-select {
             border-radius: 50px;
         }
 
         .engine-select:focus {
             outline: none;
+        }
+
+        .suggestions {
+            position: absolute;
+
+            top: calc(100% + 8px);
+
+            left: -4px;
+            right: -4px;
+
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+
+            border: 2px solid rgba(255,255,255,0.25);
+
+            border-top-left-radius: 1px;
+            border-top-right-radius: 1px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+
+            overflow: hidden;
+
+            display: none;
+            flex-direction: column;
+
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .suggestion-item {
+            padding: 14px 18px;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(255,255,255,0.2);
         }
     </style>
 </head>
@@ -130,12 +171,15 @@
             <option value="reddit">Reddit</option>
             <option value="wikipedia">Wikipedia</option>
         </select>
+
+        <div id="suggestions" class="suggestions"></div>
     </form>
 
     <script>
         const input = document.getElementById("searchInput");
         const form = document.getElementById("searchForm");
         const engineSelect = document.getElementById("engineSelect");
+        const suggestions = document.getElementById("suggestions");
 
         const engines = {
             google: "https://www.google.com/search?q=",
@@ -147,11 +191,64 @@
             wikipedia: "https://en.wikipedia.org/w/index.php?search="
         };
 
+        function updateSuggestions() {
+            const query = input.value.trim();
+
+            if (!query) {
+                suggestions.style.display = "none";
+                form.classList.remove("has-suggestions");
+                return;
+            }
+
+            form.classList.add("has-suggestions");
+
+            const engineName =
+                engineSelect.options[engineSelect.selectedIndex].text;
+
+            suggestions.innerHTML = `
+                <div class="suggestion-item" id="searchSuggestion">
+                    Search with ${engineName}: ${query}
+                </div>
+
+                <div class="suggestion-item" id="urlSuggestion">
+                    Search as URL: ${query}
+                </div>
+            `;
+
+            suggestions.style.display = "flex";
+
+            document.getElementById("searchSuggestion").onclick = () => {
+                const url =
+                    engines[engineSelect.value] +
+                    encodeURIComponent(query);
+
+                suggestions.style.display = "none";
+                form.classList.remove("has-suggestions");
+                window.open(url, "_blank");
+            };
+
+            document.getElementById("urlSuggestion").onclick = () => {
+                suggestions.style.display = "none";
+                form.classList.remove("has-suggestions");
+                window.open("http://" + query, "_blank");
+            };
+        }
+
         const savedEngine = localStorage.getItem("searchEngine") || "google";
         engineSelect.value = savedEngine;
 
         engineSelect.addEventListener("change", () => {
             localStorage.setItem("searchEngine", engineSelect.value);
+            updateSuggestions();
+        });
+
+        input.addEventListener("input", updateSuggestions);
+
+        document.addEventListener("click", (e) => {
+            if (!form.contains(e.target)) {
+                suggestions.style.display = "none";
+                form.classList.remove("has-suggestions");
+            }
         });
 
         form.addEventListener("submit", (e) => {
@@ -162,6 +259,9 @@
 
             const engine = engineSelect.value;
             const url = engines[engine] + encodeURIComponent(query);
+
+            suggestions.style.display = "none";
+            form.classList.remove("has-suggestions");
 
             window.open(url, "_blank");
         });
