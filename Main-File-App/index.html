@@ -92,7 +92,7 @@
 
     // Function when selecting an app
     function selectApp(url) {
-      if (confirm("Are you sure this is your main file storage app? You cannot undo this unless you reset your browser cookies.")) {
+      if (confirm("Are you sure this is your main file storage app? You cannot undo this unless you reset your browser cookies at https://sailorsco.github.io.")) {
         setCookie("mainStorage", url, 365);
         window.location.href = url;
       }
