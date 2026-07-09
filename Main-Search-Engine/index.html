@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choose YourSearch Engine</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    .options {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    .option {
+      cursor: pointer;
+      text-align: center;
+    }
+    .option img {
+      width: 120px;
+      height: 100px;
+      display: block;
+      margin: auto;
+    }
+    .custom-input {
+      margin-top: 20px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      width: 300px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Choose your main File storage app?</h1>
+
+  <div class="options">
+    <div class="option" onclick="selectApp('https://google.com')">
+      <img src="https://images.seeklogo.com/logo-png/62/1/google-new-logo-png_seeklogo-622426.png"alt="Google Drive">
+      <p>Google</p>
+    </div>
+    <div class="option" onclick="selectApp('https://ecosia.org')">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Ecosia_logo_%28Social_media%29_June_2022.jpg">
+      <p>Ecosia</p>
+    </div>
+    <div class="option" onclick="selectApp('https://search.brave.com/')">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbexTA1-Ad7Of-NaLyEZA-vUgHq90Ywpj4pERsl03AW6GRigjV0DQrt5gs&s=10" alt="Dropbox">
+      <p>Brave</p>
+    </div>
+    <div class="option" onclick="selectApp('https://startpage.com')">
+      <img src="https://design.system1.com/wp-content/uploads/2023/02/startpage-icon.png" alt="Apple iCloud">
+      <p>StartPage</p>
+    </div>
+  </div>
+
+  <div class="custom-input">
+    <label for="customUrl">Don't see your favorite Search Engine? Type the link:</label>
+    <input type="text" id="customUrl" placeholder="https://example.com" onkeydown="handleEnter(event)">
+  </div>
+
+  <script>
+    // Helper to set cookie
+    function setCookie(name, value, days) {
+      let expires = "";
+      if (days) {
+        let d = new Date();
+        d.setTime(d.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + d.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+    // Helper to get cookie
+    function getCookie(name) {
+      let nameEQ = name + "=";
+      let ca = document.cookie.split(';');
+      for(let i=0;i < ca.length;i++) {
+        let c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      }
+      return null;
+    }
+
+    // Function when selecting an app
+    function selectApp(url) {
+      if (confirm("Are you sure this is the Search Engine you want? You cannot undo this unless you reset your browser cookies at https://sailorsco.github.io.")) {
+        setCookie("mainStorage", url, 365);
+        window.location.href = url;
+      }
+    }
+
+    // Function for custom input
+    function handleEnter(event) {
+      if (event.key === "Enter") {
+        let url = document.getElementById("customUrl").value.trim();
+        if (url) {
+          if (!/^https?:\/\//i.test(url)) {
+            url = "https://" + url;
+          }
+          selectApp(url);
+        }
+      }
+    }
+
+    // On load, check if cookie exists
+    window.onload = function() {
+      let saved = getCookie("mainStorage");
+      if (saved) {
+        window.location.href = saved;
+      }
+    }
+  </script>
+
+</body>
+</html>
