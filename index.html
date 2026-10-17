@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Roll Color Dice</title>
-<link rel="icon" type="image/png" href="https://SailorsCo.github.io/cdn/img/Controller-Icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Titan+One&display=swap" rel="stylesheet">
@@ -42,10 +41,178 @@ body {
   background: rgba(0,0,0,.58);
 }
 
-.page {
-  width: min(760px, 94%);
+/* NEW: Three-column page layout */
+
+.site-layout {
+  width: min(1440px, 98%);
   margin: auto;
+  padding: 0 12px;
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(0, 760px) minmax(200px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.page {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
   padding: 22px 0 40px;
+}
+
+/* NEW: Left-side Google Ad placeholder */
+
+.ad-side {
+  min-width: 0;
+  padding-top: 22px;
+}
+
+.ad-placeholder {
+  min-height: 250px;
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+/* NEW: Right-side containers */
+
+.right-side {
+  min-width: 0;
+  padding-top: 22px;
+}
+
+.side-panel {
+  width: 100%;
+  min-width: 0;
+  padding: 15px;
+  margin-bottom: 18px;
+}
+
+.side-panel h2 {
+  font-size: 21px;
+  margin: 0 0 14px;
+}
+
+/* Trade Colors image */
+
+.trade-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 9px;
+}
+
+/* Rules text field */
+
+#rulesText {
+  display: block;
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  padding: 12px;
+  border: 3px solid #d2dcf1;
+  border-radius: 11px;
+  background: #f6f8ff;
+  color: #22283a;
+  font-family: "Nunito", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+#rulesText:focus-visible {
+  outline: 3px solid #8ad4ff;
+  outline-offset: 3px;
+}
+
+.side-toggle {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 10px;
+  border: 3px solid white;
+  border-radius: 11px;
+  background: #46536c;
+  color: white;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 4px 0 rgba(0,0,0,.35);
+  transition: transform .12s, filter .12s;
+}
+
+.side-toggle:hover {
+  filter: brightness(1.15);
+}
+
+.side-toggle:active {
+  transform: translateY(2px);
+}
+
+.side-toggle.active {
+  background: #20ae69;
+}
+
+/* Responsive layout for tablets */
+
+@media (max-width: 1050px) {
+  .site-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 16px;
+  }
+
+  .ad-side {
+    display: none;
+  }
+
+  .page {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .right-side {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+/* Responsive layout for phones */
+
+@media (max-width: 700px) {
+  .site-layout {
+    width: min(760px, 100%);
+    padding: 0 12px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .page {
+    grid-column: 1;
+    grid-row: 1;
+    padding-top: 16px;
+  }
+
+  .right-side {
+    grid-column: 1;
+    grid-row: 2;
+    padding-top: 0;
+  }
+
+  .ad-side {
+    display: block;
+    grid-column: 1;
+    grid-row: 3;
+    padding-top: 0;
+  }
+
+  .ad-placeholder {
+    min-height: 100px;
+  }
+
+  .right-side {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
 }
 
 .logo-wrap {
@@ -164,12 +331,12 @@ button:focus-visible, select:focus-visible, input:focus-visible {
   box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
 
-.red { background-color: #f04444; }
-.blue { background-color: #278bff; }
-.green { background-color: #27c66d; }
-.yellow { background-color: #ffce32; }
-.purple { background-color: #a75bff; }
-.orange { background-color: #ff8b27; }
+.red { background-color: #db0f0f; }
+.blue { background-color: #004cff; }
+.green { background-color: #0aab28; }
+.yellow { background-color: #ffc200; }
+.purple { background-color: #7600ff; }
+.orange { background-color: #ff7a00; }
 
 @keyframes dicePop {
   0% { transform: scale(.8) rotate(-8deg); }
@@ -225,6 +392,7 @@ button:focus-visible, select:focus-visible, input:focus-visible {
 }
 
 /* Blur and surprise controls */
+
 .effect-buttons {
   display: grid;
   grid-template-columns: 1fr;
@@ -295,6 +463,7 @@ button:focus-visible, select:focus-visible, input:focus-visible {
 }
 
 /* Character and number counter */
+
 .counter-panel { padding: 19px; }
 
 .counter-layout {
@@ -394,13 +563,14 @@ button:focus-visible, select:focus-visible, input:focus-visible {
 
 .possible span { white-space: nowrap; margin: 0 2px; }
 .color-red { color: #ff5757; }
-.color-orange { color: #ff9d43; }
+.color-orange { color: #ff7a00; }
 .color-yellow { color: #ffda48; }
 .color-green { color: #4ee78a; }
 .color-blue { color: #65b7ff; }
 .color-purple { color: #c18aff; }
 
 /* History */
+
 .history-heading {
   display: flex;
   justify-content: space-between;
@@ -499,124 +669,195 @@ button:focus-visible, select:focus-visible, input:focus-visible {
   }
 }
 </style>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8015744977341889"
+     crossorigin="anonymous"></script>
+
 </head>
 
 <body>
 <div id="background"></div>
 
-<main class="page">
+<!-- NEW: Main layout wrapper -->
 
-  <section class="panel">
-    <h1 id="mainHeading">Roll color dice</h1>
+<div class="site-layout">
 
-    <div class="settings" id="settings">
-      <div class="field">
-        <label for="diceCount">Number of dice</label>
-        <select id="diceCount">
-          <option value="1">1 Dice</option>
-          <option value="2" selected>2 Dice</option>
-          <option value="3">3 Dice</option>
-          <option value="4">4 Dice</option>
-        </select>
-      </div>
+  <!-- NEW: Left-side ad placeholder -->
 
-      <div class="field">
-        <label for="backgroundChoice">Background</label>
-        <select id="backgroundChoice">
-          <option value="klayblox">KlayBlox</option>
-          <option value="lapeace">La Peace</option>
-          <option value="upload">Upload image</option>
-        </select>
-        <input type="file" id="backgroundUpload" accept="image/*" hidden>
-      </div>
+  <aside class="ad-side" aria-label="Advertisement">
+    <div class="panel ad-placeholder" id="adPlaceholder">
+      <!-- Google Ad banner can be added here later -->
     </div>
+  </aside>
 
-    <div class="dice-area" id="diceArea" aria-live="polite"></div>
+  <!-- ORIGINAL DICE GAME -->
 
-    <div class="effect-buttons">
-      <button type="button" id="blurButton" class="effect-button">
-        Blur: OFF
-      </button>
-      <button type="button" id="surpriseButton" class="effect-button">
-        Surprise Reveal: OFF
-      </button>
-    </div>
+  <main class="page">
 
-    <div class="surprise-controls" id="surpriseControls" hidden>
-      <label for="revealSlider">Slide to reveal your colors!</label>
-      <input type="range" id="revealSlider" min="0" max="100" value="0" step="1">
-      <div class="slider-labels">
-        <span>Hidden</span>
-        <span>Revealed</span>
-      </div>
-    </div>
+    <section class="panel">
+      <h1 id="mainHeading">Roll color dice</h1>
 
-    <button class="main-button" id="rollButton">Roll Color Dice!</button>
+      <div class="settings" id="settings">
+        <div class="field">
+          <label for="diceCount">Number of dice</label>
+          <select id="diceCount">
+            <option value="1">1 Dice</option>
+            <option value="2" selected>2 Dice</option>
+            <option value="3">3 Dice</option>
+            <option value="4">4 Dice</option>
+          </select>
+        </div>
 
-    <p class="result-text" id="resultText" aria-live="polite">
-      Choose your dice and roll!
-    </p>
-
-    <p class="possible">
-      Possible colors are:
-      <span class="color-red">Red</span>,
-      <span class="color-orange">Orange</span>,
-      <span class="color-yellow">Yellow</span>,
-      <span class="color-green">Green</span>,
-      <span class="color-blue">Blue</span> and
-      <span class="color-purple">Purple</span>.
-    </p>
-  </section>
-
-  <section class="panel counter-panel">
-    <div class="counter-layout">
-      <div class="character-side">
-        <label for="characterChoice">Character</label>
-        <select id="characterChoice">
-          <option value="garama">Garama and madungdung</option>
-          <option value="colored">Colored Garama</option>
-          <option value="dragon">Dragon Cannelloni</option>
-        </select>
-
-        <div class="character-preview">
-          <img id="characterImage"
-            src="https://static.wikia.nocookie.net/stealabr/images/e/ee/Garamadundung.png/revision/latest?cb=20250816022557"
-            alt="Garama and madungdung">
-          <span class="fallback-name" id="characterFallback"></span>
+        <div class="field">
+          <label for="backgroundChoice">Background</label>
+          <select id="backgroundChoice">
+            <option value="klayblox">KlayBlox</option>
+            <option value="lapeace">La Peace</option>
+            <option value="upload">Upload image</option>
+          </select>
+          <input type="file" id="backgroundUpload" accept="image/*" hidden>
         </div>
       </div>
 
-      <div class="counter-side">
-        <div class="counter-title">Your number</div>
-        <div class="counter">
-          <div class="counter-buttons">
-            <button class="counter-btn minus" data-change="-10">-10</button>
-            <button class="counter-btn minus" data-change="-1">-1</button>
+      <div class="dice-area" id="diceArea" aria-live="polite"></div>
+
+      <div class="effect-buttons">
+        <button type="button" id="blurButton" class="effect-button">
+          Blur: OFF
+        </button>
+        <button type="button" id="surpriseButton" class="effect-button">
+          Surprise Reveal: OFF
+        </button>
+      </div>
+
+      <div class="surprise-controls" id="surpriseControls" hidden>
+        <label for="revealSlider">Slide to reveal your colors!</label>
+        <input type="range" id="revealSlider" min="0" max="100" value="0" step="1">
+        <div class="slider-labels">
+          <span>Hidden</span>
+          <span>Revealed</span>
+        </div>
+      </div>
+
+      <button class="main-button" id="rollButton">Roll Color Dice!</button>
+
+      <p class="result-text" id="resultText" aria-live="polite">
+        Choose your dice and roll!
+      </p>
+
+      <p class="possible">
+        Possible colors are:
+        <span class="color-red">Red</span>,
+        <span class="color-orange">Orange</span>,
+        <span class="color-yellow">Yellow</span>,
+        <span class="color-green">Green</span>,
+        <span class="color-blue">Blue</span> and
+        <span class="color-purple">Purple</span>.
+      </p>
+    </section>
+
+    <section class="panel counter-panel">
+      <div class="counter-layout">
+        <div class="character-side">
+          <label for="characterChoice">Character</label>
+          <select id="characterChoice">
+            <option value="garama">Garama and madungdung</option>
+            <option value="colored">Colored Garama</option>
+            <option value="dragon">Dragon Cannelloni</option>
+          </select>
+
+          <div class="character-preview">
+            <img id="characterImage"
+              src="https://static.wikia.nocookie.net/stealabr/images/e/ee/Garamadundung.png/revision/latest?cb=20250816022557"
+              alt="Garama and madungdung">
+            <span class="fallback-name" id="characterFallback"></span>
           </div>
+        </div>
 
-          <div id="counterValue">+0</div>
+        <div class="counter-side">
+          <div class="counter-title">Your number</div>
+          <div class="counter">
+            <div class="counter-buttons">
+              <button class="counter-btn minus" data-change="-10">-10</button>
+              <button class="counter-btn minus" data-change="-1">-1</button>
+            </div>
 
-          <div class="counter-buttons">
-            <button class="counter-btn plus" data-change="1">+1</button>
-            <button class="counter-btn plus" data-change="10">+10</button>
+            <div id="counterValue">+0</div>
+
+            <div class="counter-buttons">
+              <button class="counter-btn plus" data-change="1">+1</button>
+              <button class="counter-btn plus" data-change="10">+10</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="panel">
-    <div class="history-heading">
-      <h2>Roll History</h2>
-      <button class="clear-button" id="clearHistory">Clear History</button>
-    </div>
-    <div class="history-list" id="historyList">
-      <div class="history-empty">Your last 10 rolls will appear here!</div>
-    </div>
-  </section>
+    <section class="panel">
+      <div class="history-heading">
+        <h2>Roll History</h2>
+        <button class="clear-button" id="clearHistory">Clear History</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">Your last 10 rolls will appear here!</div>
+      </div>
+    </section>
 
-  <p class="footer">Made by KlayBlox's Big Brother for color dice lovers · Good luck!</p>
-</main>
+    <p class="footer">Made by KlayBlox for color dice lovers · Good luck!</p>
+  </main>
+
+  <!-- NEW: Three right-side containers -->
+
+  <aside class="right-side" aria-label="Game options">
+
+    <!-- Top container: Trade Colors image -->
+
+    <section class="panel side-panel">
+      <img
+        class="trade-image"
+        src="https://sailorsco.github.io/cdn/img/Trade%20Colors.png"
+        alt="Trade Colors">
+    </section>
+
+    <!-- Middle container: Rules -->
+
+    <section class="panel side-panel">
+      <h2>Rules</h2>
+
+      <textarea
+        id="rulesText"
+        placeholder="Write your rules here..."
+        aria-label="Game rules"
+      ></textarea>
+
+      <button
+        type="button"
+        id="defaultRulesToggle"
+        class="side-toggle"
+        aria-pressed="false"
+      >
+        Default Rules: OFF
+      </button>
+    </section>
+
+    <!-- Bottom container: Double Reject -->
+
+    <section class="panel side-panel">
+      <h2>Double Reject</h2>
+
+      <button
+        type="button"
+        id="doubleRejectToggle"
+        class="side-toggle"
+        aria-pressed="false"
+      >
+        Double Reject: OFF
+      </button>
+    </section>
+
+  </aside>
+
+</div>
 
 <script>
 const colors = [
@@ -679,7 +920,78 @@ let rollInProgress = false;
 let uploadUrl = null;
 let rollToken = 0;
 
+/* NEW: Rules toggle */
+
+const rulesText = document.getElementById("rulesText");
+const defaultRulesToggle = document.getElementById("defaultRulesToggle");
+
+const defaultRules = `1X Win
+2X Recolor
+3X Recolor
+4X Win
+
+2X Recolor = Loss`;
+
+let defaultRulesEnabled = false;
+let customRulesText = "";
+
+rulesText.addEventListener("input", () => {
+  if (!defaultRulesEnabled) {
+    customRulesText = rulesText.value;
+  }
+});
+
+defaultRulesToggle.addEventListener("click", () => {
+  defaultRulesEnabled = !defaultRulesEnabled;
+
+  if (defaultRulesEnabled) {
+    customRulesText = rulesText.value;
+    rulesText.value = defaultRules;
+  } else {
+    rulesText.value = customRulesText;
+  }
+
+  defaultRulesToggle.textContent = defaultRulesEnabled
+    ? "Default Rules: ON"
+    : "Default Rules: OFF";
+
+  defaultRulesToggle.classList.toggle(
+    "active",
+    defaultRulesEnabled
+  );
+
+  defaultRulesToggle.setAttribute(
+    "aria-pressed",
+    String(defaultRulesEnabled)
+  );
+});
+
+/* NEW: Double Reject toggle */
+
+const doubleRejectToggle = document.getElementById("doubleRejectToggle");
+
+let doubleRejectEnabled = false;
+
+doubleRejectToggle.addEventListener("click", () => {
+  doubleRejectEnabled = !doubleRejectEnabled;
+
+  doubleRejectToggle.textContent = doubleRejectEnabled
+    ? "Double Reject: ON"
+    : "Double Reject: OFF";
+
+  doubleRejectToggle.classList.toggle(
+    "active",
+    doubleRejectEnabled
+  );
+
+  doubleRejectToggle.setAttribute(
+    "aria-pressed",
+    String(doubleRejectEnabled)
+  );
+});
+
 /* Create dice */
+
 function createDice() {
   diceArea.querySelectorAll(".dice").forEach(die => die.remove());
 
@@ -714,6 +1026,7 @@ diceCount.addEventListener("change", () => {
 });
 
 /* Blur toggle */
+
 blurButton.addEventListener("click", () => {
   blurEnabled = !blurEnabled;
 
@@ -730,6 +1043,7 @@ blurButton.addEventListener("click", () => {
 });
 
 /* Surprise Reveal toggle */
+
 surpriseButton.addEventListener("click", () => {
   surpriseEnabled = !surpriseEnabled;
 
@@ -749,6 +1063,7 @@ surpriseButton.addEventListener("click", () => {
 });
 
 /* Black curtain */
+
 function setCurtain(value) {
   let curtain = diceArea.querySelector(".dice-curtain");
 
@@ -780,6 +1095,7 @@ revealSlider.addEventListener("input", () => {
 });
 
 /* Roll dice with sound and a two-second delay */
+
 function rollDice() {
   if (rollInProgress) return;
 
@@ -841,6 +1157,7 @@ function rollDice() {
 rollButton.addEventListener("click", rollDice);
 
 /* Counter */
+
 function updateCounter() {
   counterValue.textContent = number >= 0 ? "+" + number : String(number);
 }
@@ -853,6 +1170,7 @@ document.querySelectorAll("[data-change]").forEach(button => {
 });
 
 /* Background selection */
+
 function setBackground(url) {
   document.getElementById("background").style.backgroundImage =
     `url("${url}")`;
@@ -885,6 +1203,7 @@ backgroundUpload.addEventListener("change", () => {
 });
 
 /* Character images with fallback names */
+
 function setCharacter() {
   const character = characters[characterChoice.value];
 
@@ -903,6 +1222,7 @@ function setCharacter() {
 characterChoice.addEventListener("change", setCharacter);
 
 /* Last ten rolls */
+
 function addHistory(names) {
   history.unshift({
     names: [...names],
@@ -979,6 +1299,7 @@ document.getElementById("clearHistory").addEventListener("click", () => {
 });
 
 /* Initialize */
+
 createDice();
 setCharacter();
 updateCounter();
