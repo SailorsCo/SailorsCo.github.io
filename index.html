@@ -1,946 +1,988 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sailors Browser</title>
-  <link rel="icon" type="image/png" href="https://SailorsCo.github.io/cdn/img/Controller-Icon.png">
-  <style>
-    :root{
-      --outline-color: #8654ff; /* theme-controlled outline */
-      --accent-light: #bb9fff; /* used for search container border */
-      --text-purple: #6f34ff;
-      --bg-overlay-dark: rgba(0,0,0,0.35);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roll Color Dice</title>
+<link rel="icon" type="image/png" href="https://SailorsCo.github.io/cdn/img/Controller-Icon.png">
 
-    /* Reset + basic layout */
-    *{box-sizing:border-box}
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      flex-direction:column;
-      min-height:100vh;
-      background-position:center center;
-      background-repeat:no-repeat;
-      background-size:cover;
-      position:relative;
-      transition:background 0.25s ease;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Titan+One&display=swap" rel="stylesheet">
 
-    /* overlay used to darken wallpaper in dark mode (applies when needed) */
-    #wallpaperOverlay{
-      pointer-events:none;
-      position:fixed;
-      inset:0;
-      background:transparent;
-      transition:background 0.25s ease;
-      z-index:1;
-    }
+<style>
+:root {
+  --panel: rgba(25, 30, 44, .70);
+  --blue: #168bff;
+}
 
-    /* Clock top-left */
-    #clock {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      background-color: white;
-      color: var(--outline-color);
-      border: 2px solid var(--outline-color);
-      border-radius: 10px;
-      padding: 8px 15px;
-      font-size: 18px;
-      font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      font-family: "Courier New", monospace;
-      z-index: 200;
-    }
+* { box-sizing: border-box; }
 
-    /* Menu + Settings top-right */
-    .top-controls{
-      position:absolute;
-      top:12px;
-      right:12px;
-      display:flex;
-      gap:10px;
-      z-index:200;
-      align-items:center;
-    }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: white;
+  font-family: "Nunito", Arial, sans-serif;
+  font-weight: 900;
+  background: #202838;
+}
 
-    /* Settings button (left of menu) */
-    #settingsButton {
-      background: white;
-      border: 2px solid #6f34ff; /* note: fixed color per your request */
-      border-radius: 10px;
-      padding: 8px;
-      cursor: pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    #settingsButton img { width:30px; height:30px; display:block; }
+#background {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image: url("https://sailorsco.github.io/cdn/img/Klayblox%20BG.jpeg");
+  background-position: center;
+  background-size: cover;
+}
 
-    /* Menu button (right) */
-    #menuButton {
-      background-color: white;
-      border: 2px solid var(--outline-color);
-      border-radius: 10px;
-      padding: 8px;
-      cursor: pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    #menuButton img { width:30px; height:30px; display:block; }
+#background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.58);
+}
 
-    /* Dropdown containers */
-    .dropdown {
-      display:none;
-      position:absolute;
-      background:white;
-      border:2px solid var(--outline-color);
-      border-radius:10px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.15);
-      padding:12px;
-      z-index: 300;
-    }
+.page {
+  width: min(760px, 94%);
+  margin: auto;
+  padding: 22px 0 40px;
+}
 
-    /* Settings dropdown placed left of menu button */
-    #settingsDropdown {
-      right: 75px;
-      top: 50px;
-      width: 360px;
-    }
+.logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
 
-    /* Appearance panel (nested) */
-    #appearancePanel {
-      right: 75px;
-      top: 50px;
-      width: 520px;
-      display:none;
-    }
+.logo {
+  width: min(230px, 65%);
+  height: 105px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 0 rgba(0,0,0,.3));
+}
 
-    /* Menu dropdown (the 5x3 grid) */
-    #dropdownMenu {
-      right: 15px;
-      top: 65px;
-      width: calc(3 * 70px + 2 * 15px + 30px); /* grid width */
-      padding:15px;
-    }
+.panel {
+  background: var(--panel);
+  border: 3px solid white;
+  border-radius: 19px;
+  box-shadow: 0 8px 0 rgba(0,0,0,.38);
+  padding: 23px;
+  margin-bottom: 23px;
+}
 
-    /* grid for menu */
-    .menu-grid{
-      display:grid;
-      grid-template-columns:repeat(3,70px);
-      grid-gap:15px;
-      justify-content:center;
-      align-items:center;
-    }
-    .menu-item{
-      width:70px;height:70px;background:white;border:2px solid var(--outline-color);border-radius:15px;
-      display:flex;justify-content:center;align-items:center;cursor:pointer;transition:transform .15s;
-    }
-    .menu-item:hover{transform:scale(1.08);background:#fafaff}
-    .menu-item img{width:40px;height:40px;display:block}
+h1, h2 {
+  font-family: "Titan One", "Nunito", sans-serif;
+  text-align: center;
+  text-shadow: 0 3px 0 rgba(0,0,0,.35);
+}
 
-    /* Search container (same as before but uses css variables) */
-    .search-container {
-      display: flex;
-      border: 5px solid var(--accent-light);
-      border-radius: 40px;
-      overflow: hidden;
-      background-color: white;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      transition: border-color 0.3s;
-      width: 600px;
-      max-width: 90%;
-      position: relative;
-      flex-direction: column;
-      margin-top: 60px;
-      z-index: 50;
-    }
-    .search-bar { display:flex; width:100%; align-items:center }
-    .search-bar button{ background:none;border:none;cursor:pointer;padding:10px;margin:3.7px }
-    .search-bar button img{width:30px;height:30px}
-    .search-bar input[type="text"]{
-      border:none;padding:12px 20px;font-size:16px;outline:none;flex:1;color:var(--text-purple)
-    }
-    .search-bar input[type="text"]::placeholder{ color: var(--text-purple); opacity:1 }
-    .search-container:focus-within{ border-color: var(--text-purple) }
+h1 {
+  font-size: clamp(27px, 5vw, 38px);
+  margin: 0 0 25px;
+  transition: filter .2s;
+}
 
-    .suggestions {
-      display: none;
-      width: 100%;
-      background: white;
-      border-top: 1px solid var(--accent-light);
-      border-radius: 0 0 20px 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      z-index: 110;
-    }
-    .suggestions div{ padding:10px; cursor:pointer; color: var(--text-purple) }
-    .suggestions div:hover{ background:#f0f0f0 }
+h2 {
+  font-size: 23px;
+  margin: 0 0 18px;
+}
 
-    /* Shortcuts row (below search) */
-    .shortcuts-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
-      gap: 15px;
-      margin-top: 18px;
-      z-index:50;
-    }
-    .shortcut {
-      width: 70px;
-      height: 70px;
-      background: white;
-      border: 2px solid var(--outline-color);
-      border-radius: 15px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.18s ease;
-    }
-    .shortcut:hover { transform: scale(1.05) }
-    .shortcut img{ width:35px;height:35px;border-radius:8px }
-    .delete-btn {
-      position:absolute;top:-10px;right:-10px;background:red;color:white;border:none;border-radius:8px;font-size:10px;padding:3px 5px;cursor:pointer;display:none;
-    }
+.settings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 24px;
+  transition: filter .2s;
+}
 
-    /* Settings dropdown inner layout */
-    .setting-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 6px; border-radius:6px; }
-    .setting-row .label { font-weight:600; color:#333 }
-    .settings-button{ padding:8px 10px; border-radius:8px; background:#f2f2ff; border:1px solid var(--outline-color); cursor:pointer }
-    .settings-button:hover{ filter:brightness(.98) }
-    select, button, input[type="file"]{ font-size:14px }
+.field label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #d9e6ff;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
 
-    /* Appearance panel details */
-    .appearance-section { margin-top:8px; padding:8px; border-radius:8px; background:#fff; border:1px solid #eee }
-    .wallpaper-row { display:flex; gap:10px; align-items:center; margin-bottom:10px }
-    .wall-thumb { width:90px; height:60px; border:2px solid #ddd; border-radius:8px; overflow:hidden; cursor:pointer; display:flex; align-items:center; justify-content:center }
-    .wall-thumb img{ width:100%; height:100%; object-fit:cover }
-    .appearance-head { display:flex; justify-content:space-between; align-items:center }
+select, button, input {
+  font: inherit;
+}
 
-    /* small X close button in appearance panel */
-    .appearance-close {
-      background:#fff;border:2px solid var(--outline-color); border-radius:6px;padding:4px 7px; cursor:pointer;
-    }
+select {
+  width: 100%;
+  padding: 12px;
+  background: #f6f8ff;
+  color: #22283a;
+  border: 3px solid #d2dcf1;
+  border-radius: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
 
-    /* Footer */
-    footer { position: fixed; bottom:10px; left:0; right:0; text-align:center; color:white; font-size:14px; z-index:30 }
-    footer a{ color:var(--accent-light); font-weight:bold; text-decoration:none }
-    footer a:hover{text-decoration:underline}
+button { cursor: pointer; }
 
-    /* Theme-specific small tweaks for Light mode */
-    body.light-mode * { color: #111 !important }
-    body.light-mode .search-container { box-shadow: 0 2px 6px rgba(0,0,0,0.06) }
-  </style>
+button:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 3px solid #8ad4ff;
+  outline-offset: 3px;
+}
+
+.dice-area {
+  position: relative;
+  min-height: 145px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(8px, 0vw, 20px);
+  flex-wrap: nowrap;
+  margin: 12px 0 23px;
+  overflow: hidden;
+  isolation: isolate;
+  transition: filter .2s;
+}
+
+.dice {
+  width: clamp(54px, 14vw, 112px);
+  aspect-ratio: 1;
+  flex: 1 1 0;
+  max-width: 112px;
+  min-width: 0;
+  border: 10px solid white;
+  border-radius: 22%;
+  box-shadow: 0 7px 0 rgba(0,0,0,.35),
+              inset 0 -5px 0 rgba(0,0,0,.14);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: dicePop .25s ease;
+}
+
+.dice-dot {
+  width: 24%;
+  aspect-ratio: 1;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+
+.red { background-color: #f04444; }
+.blue { background-color: #278bff; }
+.green { background-color: #27c66d; }
+.yellow { background-color: #ffce32; }
+.purple { background-color: #a75bff; }
+.orange { background-color: #ff8b27; }
+
+@keyframes dicePop {
+  0% { transform: scale(.8) rotate(-8deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+.dice.rolling {
+  animation: shake .35s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-9deg) scale(.95); }
+  50% { transform: rotate(9deg) scale(1.04); }
+  75% { transform: rotate(-5deg) scale(.98); }
+}
+
+.main-button {
+  width: 100%;
+  background: #168bff;
+  color: white;
+  border: 3px solid white;
+  border-radius: 13px;
+  padding: 14px 18px;
+  font-size: 21px;
+  font-weight: 900;
+  box-shadow: 0 6px 0 #0755ad;
+  text-shadow: 0 2px 0 rgba(0,0,0,.25);
+  transition: transform .12s, box-shadow .12s;
+}
+
+.main-button:hover {
+  background: #38a0ff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #0755ad;
+}
+
+.main-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #0755ad;
+}
+
+.main-button:disabled {
+  cursor: wait;
+  transform: none;
+}
+
+.result-text {
+  text-align: center;
+  margin: 16px 0 0;
+  color: #e2ebff;
+  font-size: 14px;
+}
+
+/* Blur and surprise controls */
+.effect-buttons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.effect-button {
+  width: 100%;
+  padding: 11px 15px;
+  border: 3px solid white;
+  border-radius: 12px;
+  color: white;
+  background: #46536c;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 4px 0 rgba(0,0,0,.35);
+}
+
+.effect-button:hover { filter: brightness(1.15); }
+.effect-button.active { background: #8a48e8; }
+
+.blurred {
+  filter: blur(7px);
+}
+
+.dice-curtain {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #000;
+  transform: translateX(0%);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.surprise-controls {
+  margin: -8px 0 20px;
+  padding: 13px;
+  border: 2px solid rgba(255,255,255,.35);
+  border-radius: 12px;
+  background: rgba(0,0,0,.3);
+}
+
+.surprise-controls[hidden] { display: none; }
+
+.surprise-controls label {
+  display: block;
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+#revealSlider {
+  width: 100%;
+  accent-color: #168bff;
+  cursor: ew-resize;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #d9e6ff;
+  font-size: 12px;
+}
+
+/* Character and number counter */
+.counter-panel { padding: 19px; }
+
+.counter-layout {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) 2fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.character-side { min-width: 0; }
+
+.character-side label {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  color: #d9e6ff;
+  margin-bottom: 8px;
+}
+
+.character-preview {
+  width: 100%;
+  height: 105px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.character-preview img {
+  max-width: 100%;
+  width: 100%;
+  height: 105px;
+  object-fit: contain;
+}
+
+.fallback-name {
+  display: none;
+  text-align: center;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.counter-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #d9e6ff;
+  text-align: center;
+  margin-bottom: 9px;
+  letter-spacing: .5px;
+}
+
+.counter {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0,0,0,.27);
+  border: 2px solid rgba(255,255,255,.3);
+  border-radius: 15px;
+  padding: 9px;
+}
+
+.counter-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.counter-btn {
+  border: 2px solid white;
+  color: white;
+  border-radius: 9px;
+  background: #39465e;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 10px 3px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.3);
+}
+
+.counter-btn:hover { filter: brightness(1.2); }
+.minus { background: #ec4e55; }
+.plus { background: #20ae69; }
+
+#counterValue {
+  text-align: center;
+  font-family: "Titan One", sans-serif;
+  font-size: clamp(23px, 5vw, 37px);
+  overflow-wrap: anywhere;
+}
+
+.possible {
+  text-align: center;
+  line-height: 2;
+  font-size: 14px;
+  margin: 20px 0 0;
+}
+
+.possible span { white-space: nowrap; margin: 0 2px; }
+.color-red { color: #ff5757; }
+.color-orange { color: #ff9d43; }
+.color-yellow { color: #ffda48; }
+.color-green { color: #4ee78a; }
+.color-blue { color: #65b7ff; }
+.color-purple { color: #c18aff; }
+
+/* History */
+.history-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.history-heading h2 {
+  text-align: left;
+  margin: 0;
+}
+
+.clear-button {
+  padding: 7px 11px;
+  color: white;
+  background: #46536c;
+  border: 2px solid white;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.history-empty {
+  text-align: center;
+  color: #c5d1e8;
+  font-size: 14px;
+  padding: 15px 0 4px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(255,255,255,.07);
+  border: 2px solid rgba(255,255,255,.17);
+  border-radius: 11px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.history-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mini-dice {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid white;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.history-number {
+  color: white;
+  font-family: "Titan One", sans-serif;
+  white-space: nowrap;
+}
+
+.footer {
+  text-align: center;
+  color: #e0e8f8;
+  font-size: 12px;
+  opacity: .85;
+  margin-top: 22px;
+}
+
+@media (max-width: 430px) {
+  .panel { padding: 16px; }
+  .settings { gap: 10px; }
+
+  .counter-layout {
+    grid-template-columns: 94px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .counter { padding: 6px 4px; gap: 3px; }
+  .counter-btn { font-size: 12px; padding: 9px 2px; }
+  .character-preview, .character-preview img { height: 85px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
 </head>
+
 <body>
+<div id="background"></div>
 
-  <!-- wallpaper dark overlay -->
-  <div id="wallpaperOverlay"></div>
+<main class="page">
 
-  <!-- Clock -->
-  <div id="clock">00:00:00</div>
+  <section class="panel">
+    <h1 id="mainHeading">Roll color dice</h1>
 
-  <!-- Top controls: settings + menu -->
-  <div class="top-controls">
-    <button id="settingsButton" title="Settings">
-      <img src="https://sailorsco.github.io/cdn/img/Settings-Icon.png" alt="Settings">
-    </button>
-
-    <button id="menuButton" title="Menu">
-      <img src="https://sailorsco.github.io/cdn/img/Menu-Icon.png" alt="Menu">
-    </button>
-  </div>
-
-  <!-- Menu dropdown (5 rows x 3 columns = 15) -->
-  <div id="dropdownMenu" class="dropdown">
-    <div class="menu-grid">
-      <div class="menu-item" data-url="https://maps.google.com"><img src="https://sl.co/maps.png" alt="Maps" /></div>
-      <div class="menu-item" data-url="https://youtube.com"><img src="https://sl.co/youtube.png" alt="YouTube" /></div>
-      <div class="menu-item" data-url="https://gmail.com"><img src="https://sl.co/gmail.png" alt="Gmail" /></div>
-
-      <div class="menu-item" data-url="https://meet.google.com"><img src="https://sl.co/gmeet.png" alt="GMeet" /></div>
-      <div class="menu-item" data-url="https://chat.google.com"><img src="https://sl.co/gchat.png" alt="GChat" /></div>
-      <div class="menu-item" data-url="https://drive.google.com"><img src="https://sl.co/gdrive.png" alt="GDrive" /></div>
-
-      <div class="menu-item" data-url="https://photos.google.com"><img src="https://sl.co/gphotos.png" alt="GPhotos" /></div>
-      <div class="menu-item" data-url="https://calendar.google.com"><img src="https://sl.co/gcalendar.png" alt="GCalendar" /></div>
-      <div class="menu-item" data-url="https://classroom.google.com"><img src="https://sl.co/Gclass.png" alt="Classroom" /></div>
-
-      <div class="menu-item" data-url="https://sites.google.com/view/MicrosoftSailors"><img src="https://sl.co/SMPortal.png" alt="MS Portal" /></div>
-      <div class="menu-item" data-url="https://canva.com"><img src="https://sl.co/canva.png" alt="Canva" /></div>
-      <div class="menu-item" data-url="https://www.google.com/shopping"><img src="https://sl.co/Gshop.png" alt="Shopping" /></div>
-
-      <div class="menu-item" data-url="https://notebooklm.google.com"><img src="https://sl.co/Notebooklm.png" alt="NotebookLM" /></div>
-      <div class="menu-item" data-url="https://chatgpt.com"><img src="https://sl.co/ChatGPT.png" alt="ChatGPT" /></div>
-      <div class="menu-item" data-url="https://translate.google.com"><img src="https://sl.co/Gtranslate.png" alt="Translate" /></div>
-    </div>
-  </div>
-
-  <!-- Settings dropdown -->
-  <div id="settingsDropdown" class="dropdown">
-    <!-- Sailors Account -->
-    <div class="setting-row">
-      <div class="label">Sailors Account</div>
-      <button class="settings-button" id="openAccount">Open</button>
-    </div>
-
-    <!-- Change Search Engine -->
-    <div class="setting-row" style="margin-top:8px;">
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div class="label">Change Search Engine</div>
-        <div style="font-size:12px;color:#666">Select which engine the search bar uses</div>
+    <div class="settings" id="settings">
+      <div class="field">
+        <label for="diceCount">Number of dice</label>
+        <select id="diceCount">
+          <option value="1">1 Dice</option>
+          <option value="2" selected>2 Dice</option>
+          <option value="3">3 Dice</option>
+          <option value="4">4 Dice</option>
+        </select>
       </div>
-      <select id="searchEngineSelect" title="Search engine">
-        <!-- options inserted by JS -->
-      </select>
-    </div>
 
-    <!-- Appearance (opens nested panel) -->
-    <div class="setting-row" style="margin-top:8px;">
-      <div class="label">Appearance</div>
-      <button class="settings-button" id="openAppearance">Open</button>
-    </div>
-
-    <!-- Reset Settings -->
-    <div class="setting-row" style="margin-top:12px;">
-      <div class="label">Reset Settings</div>
-      <button class="settings-button" id="resetSettings">Reset</button>
-    </div>
-
-    <!-- Download Extension -->
-    <div class="setting-row" style="margin-top:12px;">
-      <div class="label">Download Extension</div>
-      <button class="settings-button" id="downloadExtension">Open</button>
-    </div>
-  </div>
-
-  <!-- Appearance panel (nested) -->
-  <div id="appearancePanel" class="dropdown">
-    <div class="appearance-head">
-      <h3 style="margin:0">Appearance</h3>
-      <div style="display:flex;gap:8px;">
-        <button class="appearance-close" id="appearanceClose">X</button>
+      <div class="field">
+        <label for="backgroundChoice">Background</label>
+        <select id="backgroundChoice">
+          <option value="klayblox">KlayBlox</option>
+          <option value="lapeace">La Peace</option>
+          <option value="upload">Upload image</option>
+        </select>
+        <input type="file" id="backgroundUpload" accept="image/*" hidden>
       </div>
     </div>
 
-    <!-- Wallpapers -->
-    <div class="appearance-section" style="margin-top:10px;">
-      <div style="font-weight:700;margin-bottom:6px">Wallpapers</div>
-      <div class="wallpaper-row">
-        <div class="wall-thumb" data-index="0" title="Black Camo (default)"><img src="https://SailorsCo.github.io/cdn/img/Black-Camo-Wallpaper.png" alt="Black Camo"></div>
-        <div class="wall-thumb" data-index="1" title="Black Flow"><img src="https://SailorsCo.github.io/cdn/img/Black-Flow-Wallpaper.png" alt="Black Flow"></div>
-        <div class="wall-thumb" data-index="2" title="White Flow"><img src="https://SailorsCo.github.io/cdn/img/White%20Flow%20Wallpaper.png" alt="White Flow"></div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <label for="uploadWallpaper" class="settings-button" style="display:inline-block;cursor:pointer;padding:8px">Upload Wallpaper</label>
-          <input id="uploadWallpaper" type="file" accept=".png,.jpg,.jpeg" style="display:none">
+    <div class="dice-area" id="diceArea" aria-live="polite"></div>
+
+    <div class="effect-buttons">
+      <button type="button" id="blurButton" class="effect-button">
+        Blur: OFF
+      </button>
+      <button type="button" id="surpriseButton" class="effect-button">
+        Surprise Reveal: OFF
+      </button>
+    </div>
+
+    <div class="surprise-controls" id="surpriseControls" hidden>
+      <label for="revealSlider">Slide to reveal your colors!</label>
+      <input type="range" id="revealSlider" min="0" max="100" value="0" step="1">
+      <div class="slider-labels">
+        <span>Hidden</span>
+        <span>Revealed</span>
+      </div>
+    </div>
+
+    <button class="main-button" id="rollButton">Roll Color Dice!</button>
+
+    <p class="result-text" id="resultText" aria-live="polite">
+      Choose your dice and roll!
+    </p>
+
+    <p class="possible">
+      Possible colors are:
+      <span class="color-red">Red</span>,
+      <span class="color-orange">Orange</span>,
+      <span class="color-yellow">Yellow</span>,
+      <span class="color-green">Green</span>,
+      <span class="color-blue">Blue</span> and
+      <span class="color-purple">Purple</span>.
+    </p>
+  </section>
+
+  <section class="panel counter-panel">
+    <div class="counter-layout">
+      <div class="character-side">
+        <label for="characterChoice">Character</label>
+        <select id="characterChoice">
+          <option value="garama">Garama and madungdung</option>
+          <option value="colored">Colored Garama</option>
+          <option value="dragon">Dragon Cannelloni</option>
+        </select>
+
+        <div class="character-preview">
+          <img id="characterImage"
+            src="https://static.wikia.nocookie.net/stealabr/images/e/ee/Garamadundung.png/revision/latest?cb=20250816022557"
+            alt="Garama and madungdung">
+          <span class="fallback-name" id="characterFallback"></span>
         </div>
       </div>
-      <div style="font-size:12px;color:#666">Uploaded wallpaper will replace current and persist.</div>
-    </div>
 
-    <!-- Mode -->
-    <div class="appearance-section" style="margin-top:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-weight:700">Mode</div>
-        <select id="modeSelect" title="Mode">
-          <option value="light">Light Mode</option>
-          <option value="dark">Dark Mode</option>
-          <option value="system">System</option>
-        </select>
+      <div class="counter-side">
+        <div class="counter-title">Your number</div>
+        <div class="counter">
+          <div class="counter-buttons">
+            <button class="counter-btn minus" data-change="-10">-10</button>
+            <button class="counter-btn minus" data-change="-1">-1</button>
+          </div>
+
+          <div id="counterValue">+0</div>
+
+          <div class="counter-buttons">
+            <button class="counter-btn plus" data-change="1">+1</button>
+            <button class="counter-btn plus" data-change="10">+10</button>
+          </div>
+        </div>
       </div>
-      <div style="font-size:12px;color:#666;margin-top:6px">In Dark mode wallpapers are darkened (except first two).</div>
     </div>
+  </section>
 
-    <!-- Theme -->
-    <div class="appearance-section" style="margin-top:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-weight:700">Theme</div>
-        <select id="themeSelect" title="Theme">
-          <option value="purple">Purple</option>
-          <option value="blue">Blue</option>
-          <option value="black">Black</option>
-          <option value="white">White</option>
-        </select>
-      </div>
-      <div style="font-size:12px;color:#666;margin-top:6px">White theme allowed only with first or second wallpaper.</div>
+  <section class="panel">
+    <div class="history-heading">
+      <h2>Roll History</h2>
+      <button class="clear-button" id="clearHistory">Clear History</button>
     </div>
-  </div>
-
-  <!-- Search area -->
-  <form class="search-container" id="searchForm">
-    <div class="search-bar">
-      <button type="submit">
-        <img src="https://SailorsCo.github.io/cdn/img/Search-Icon.png" alt="Search" />
-      </button>
-
-      <input
-        type="text"
-        id="searchInput"
-        name="query"
-        placeholder="Search the Internet..."
-        autocomplete="off"
-        required
-      />
-
-      <button type="button" id="voiceButton" title="Voice">
-        <img src="https://SailorsCo.github.io/cdn/img/Microphone-Icon.png" alt="Voice Search" />
-      </button>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">Your last 10 rolls will appear here!</div>
     </div>
-    <div class="suggestions" id="suggestions"></div>
-  </form>
+  </section>
 
-  <!-- Shortcuts row (below search) -->
-  <div class="shortcuts-container" id="shortcuts" aria-label="Shortcuts"></div>
+  <p class="footer">Made by KlayBlox's Big Brother for color dice lovers · Good luck!</p>
+</main>
 
-  <!-- Footer -->
-  <footer>
-    Copyright © 2025
-    <a href="https://sites.google.com/view/SailorsCo/products/Sailors-Browser/Copyright" target="_blank"><b>Sailors Browser</b></a>
-    All rights reserved
-  </footer>
+<script>
+const colors = [
+  { name: "Red", className: "red" },
+  { name: "Blue", className: "blue" },
+  { name: "Green", className: "green" },
+  { name: "Yellow", className: "yellow" },
+  { name: "Purple", className: "purple" },
+  { name: "Orange", className: "orange" }
+];
 
-  <script>
-    /**********************
-     * Initialization / state
-     **********************/
-    const defaultState = {
-      searchEngine: "Google",
-      theme: "purple",
-      mode: "dark",
-      wallpaperIndex: 0, // 0: Black Camo (default), 1: Black Flow, 2: White Flow, 3+: uploaded/custom
-      uploadedWallpaper: null
-    };
+const backgrounds = {
+  klayblox: "https://sailorsco.github.io/cdn/img/Klayblox%20BG.jpeg",
+  lapeace: "https://images4.alphacoders.com/141/1412936.png"
+};
 
-    // available search engines mapping to search URL format (use {q} placeholder)
-    const SEARCH_ENGINES = {
-      "Google": "https://www.google.com/search?q={q}",
-      "Bing": "https://www.bing.com/search?q={q}",
-      "Startpage": "https://www.startpage.com/do/dsearch?query={q}",
-      "Qwant": "https://www.qwant.com/?q={q}",
-      "Ecosia": "https://www.ecosia.org/search?q={q}",
-      "Duck Duck Go": "https://duckduckgo.com/?q={q}",
-      "Brave": "https://search.brave.com/search?q={q}",
-      "Sailors Engine (Beta)": "https://cse.google.com/cse?cx=d1e0fd6ddd5644f5d&q={q}",
-      "YouTube": "https://www.youtube.com/results?search_query={q}",
-      "GScholer": "https://scholar.google.com/scholar?q={q}",
-      "Google Drive": "https://drive.google.com/drive/search?q={q}",
-      "Yahoo": "https://search.yahoo.com/search?p={q}",
-      "Reddit": "https://www.reddit.com/search/?q={q}",
-      "Pinterest": "https://in.pinterest.com/search/pins/?q={q}",
-      "Wikipedia": "https://en.wikipedia.org/w/index.php?search={q}",
-      "Twitter (X)": "https://twitter.com/search?q={q}"
-    };
+const characters = {
+  garama: {
+    name: "Garama and madungdung",
+    image: "https://static.wikia.nocookie.net/stealabr/images/e/ee/Garamadundung.png/revision/latest?cb=20250816022557"
+  },
+  colored: {
+    name: "Colored Garama",
+    image: "https://bloxcart.com/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F0815%2F2068%2F9482%2Ffiles%2F7_-_BJBZpvy.png%3Fv%3D1760883876&w=3840&q=75"
+  },
+  dragon: {
+    name: "Dragon Cannelloni",
+    image: "https://static.wikia.nocookie.net/stealabr/images/a/a5/Dragon_Cannelloni.png/revision/latest/scale-to-width-down/1200?cb=20260428162417"
+  }
+};
 
-    // wallpaper list (default public images)
-    const WALLPAPERS = [
-      "https://SailorsCo.github.io/cdn/img/Black-Camo-Wallpaper.png",    // index 0
-      "https://SailorsCo.github.io/cdn/img/Black-Flow-Wallpaper.png",    // index 1
-      "https://SailorsCo.github.io/cdn/img/White%20Flow%20Wallpaper.png" // index 2 (note encoded space)
-    ];
+const diceCount = document.getElementById("diceCount");
+const diceArea = document.getElementById("diceArea");
+const rollButton = document.getElementById("rollButton");
+const resultText = document.getElementById("resultText");
+const counterValue = document.getElementById("counterValue");
+const historyList = document.getElementById("historyList");
+const backgroundChoice = document.getElementById("backgroundChoice");
+const backgroundUpload = document.getElementById("backgroundUpload");
+const characterChoice = document.getElementById("characterChoice");
+const characterImage = document.getElementById("characterImage");
+const characterFallback = document.getElementById("characterFallback");
 
-    // Load saved state or defaults
-    const saved = JSON.parse(localStorage.getItem("sailorsSettings") || "null");
-    const state = Object.assign({}, defaultState, saved || {});
-    // If uploaded stored, make sure it remains
-    if(saved && saved.uploadedWallpaper) state.uploadedWallpaper = saved.uploadedWallpaper;
+const blurButton = document.getElementById("blurButton");
+const surpriseButton = document.getElementById("surpriseButton");
+const surpriseControls = document.getElementById("surpriseControls");
+const revealSlider = document.getElementById("revealSlider");
 
-    // elements
-    const clockEl = document.getElementById("clock");
-    const menuButton = document.getElementById("menuButton");
-    const dropdownMenu = document.getElementById("dropdownMenu");
-    const settingsButton = document.getElementById("settingsButton");
-    const settingsDropdown = document.getElementById("settingsDropdown");
-    const appearancePanel = document.getElementById("appearancePanel");
-    const appearanceClose = document.getElementById("appearanceClose");
-    const openAppearanceBtn = document.getElementById("openAppearance");
-    const openAccountBtn = document.getElementById("openAccount");
-    const downloadExtensionBtn = document.getElementById("downloadExtension");
-    const searchEngineSelect = document.getElementById("searchEngineSelect");
-    const themeSelect = document.getElementById("themeSelect");
-    const modeSelect = document.getElementById("modeSelect");
-    const uploadInput = document.getElementById("uploadWallpaper");
-    const wallpaperThumbs = document.querySelectorAll(".wall-thumb");
-    const wallpaperOverlay = document.getElementById("wallpaperOverlay");
-    const shortcutsContainer = document.getElementById("shortcuts");
-    const searchForm = document.getElementById("searchForm");
-    const searchInput = document.getElementById("searchInput");
-    const suggestionsBox = document.getElementById("suggestions");
-    const voiceButton = document.getElementById("voiceButton");
-    const resetSettingsBtn = document.getElementById("resetSettings");
+const rollSound = new Audio(
+  "https://sailorsco.github.io/cdn/audio/Dice%20roll%20sound.m4a"
+);
+rollSound.preload = "auto";
 
-    /**********************
-     * Utility helpers
-     **********************/
-    function saveState(){
-      localStorage.setItem("sailorsSettings", JSON.stringify(state));
-    }
-    function setBodyWallpaper(){
-      // If uploaded wallpaper present & wallpaperIndex >=3 assume uploaded; else use WALLPAPERS
-      let url = "";
-      if(state.wallpaperIndex >= 3 && state.uploadedWallpaper){
-        url = state.uploadedWallpaper;
-      } else {
-        url = WALLPAPERS[state.wallpaperIndex] || WALLPAPERS[0];
-      }
-      document.body.style.backgroundImage = `url("${url}")`;
-      applyDarkOverlayIfNeeded();
-    }
+let number = 0;
+let history = [];
+let currentDice = [];
+let blurEnabled = false;
+let surpriseEnabled = false;
+let rollInProgress = false;
+let uploadUrl = null;
+let rollToken = 0;
 
-    function applyDarkOverlayIfNeeded(){
-      // Dark mode: if state.mode === 'dark' OR (mode === 'system' && prefers dark)
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const effectiveMode = state.mode === 'system' ? (prefersDark ? 'dark' : 'light') : state.mode;
-      if(effectiveMode === 'dark'){
-        // darken unless wallpaper index is 0 or 1
-        if(state.wallpaperIndex === 0 || state.wallpaperIndex === 1){
-          wallpaperOverlay.style.background = 'transparent';
-        } else {
-          wallpaperOverlay.style.background = 'var(--bg-overlay-dark)';
-        }
-        document.body.classList.remove('light-mode');
-      } else {
-        wallpaperOverlay.style.background = 'transparent';
-        if(effectiveMode === 'light') document.body.classList.add('light-mode');
-        else document.body.classList.remove('light-mode');
-      }
-    }
+/* Create dice */
+function createDice() {
+  diceArea.querySelectorAll(".dice").forEach(die => die.remove());
 
-    function applyTheme(){
-      // change --outline-color and other variables based on state.theme
-      if(state.theme === 'purple'){
-        document.documentElement.style.setProperty('--outline-color', '#8654ff');
-        document.documentElement.style.setProperty('--accent-light','#bb9fff');
-        document.documentElement.style.setProperty('--text-purple','#6f34ff');
-      } else if(state.theme === 'blue'){
-        document.documentElement.style.setProperty('--outline-color', '#4277ff');
-        document.documentElement.style.setProperty('--accent-light','#9fbfff');
-        document.documentElement.style.setProperty('--text-purple','#4277ff');
-      } else if(state.theme === 'black'){
-        document.documentElement.style.setProperty('--outline-color', '#000000');
-        document.documentElement.style.setProperty('--accent-light','#666666');
-        document.documentElement.style.setProperty('--text-purple','#000000');
-      } else if(state.theme === 'white'){
-        document.documentElement.style.setProperty('--outline-color', '#ffffff');
-        document.documentElement.style.setProperty('--accent-light','#ffffff');
-        document.documentElement.style.setProperty('--text-purple','#ffffff');
-      }
-      // re-apply overlay (in case theme affects visuals)
-      applyDarkOverlayIfNeeded();
-    }
+  const count = Number(diceCount.value);
 
-    function normalizeUrl(url){
-      url = url.trim();
-      if(!/^https?:\/\//i.test(url)){
-        url = 'https://' + url;
-      }
-      return url;
-    }
+  for (let i = 0; i < count; i++) {
+    const die = document.createElement("div");
+    const color = currentDice[i] || colors[i % colors.length];
 
-    // Search submit handler uses selected engine
-    function getSearchUrl(query){
-      const engine = state.searchEngine || defaultState.searchEngine;
-      const template = SEARCH_ENGINES[engine] || SEARCH_ENGINES['Google'];
-      return template.replace('{q}', encodeURIComponent(query));
-    }
+    die.className = "dice " + color.className;
+    die.innerHTML = '<span class="dice-dot"></span>';
+    die.setAttribute("aria-label", color.name);
 
-    /**********************
-     * Clock
-     **********************/
-    function updateClock(){
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2,'0');
-      const mm = String(now.getMinutes()).padStart(2,'0');
-      const ss = String(now.getSeconds()).padStart(2,'0');
-      clockEl.textContent = `${hh}:${mm}:${ss}`;
-    }
-    setInterval(updateClock,1000);
-    updateClock();
+    diceArea.insertBefore(
+      die,
+      diceArea.querySelector(".dice-curtain")
+    );
+  }
+}
 
-    /**********************
-     * Menu & Settings toggles
-     **********************/
-    menuButton.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-      // hide settings if open
-      settingsDropdown.style.display = 'none';
-      appearancePanel.style.display = 'none';
-    });
+diceCount.addEventListener("change", () => {
+  if (rollInProgress) return;
 
-    settingsButton.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      settingsDropdown.style.display = settingsDropdown.style.display === 'block' ? 'none' : 'block';
-      // hide menu if open
-      dropdownMenu.style.display = 'none';
-      appearancePanel.style.display = 'none';
-      positionSettingsDropdown();
-    });
+  currentDice = [];
+  createDice();
 
-    // close dropdowns when clicking outside
-    document.addEventListener('click', (e)=>{
-      if(!dropdownMenu.contains(e.target) && !menuButton.contains(e.target)) dropdownMenu.style.display = 'none';
-      if(!settingsDropdown.contains(e.target) && !settingsButton.contains(e.target)) {
-        settingsDropdown.style.display = 'none';
-        // close appearance panel as well
-        appearancePanel.style.display = 'none';
-      }
-    });
+  resultText.textContent = "Ready to roll " + diceCount.value + " dice!";
 
-    // menu grid click -> open links
-    document.querySelectorAll('#dropdownMenu .menu-item').forEach( item=>{
-      item.addEventListener('click', ()=>{
-        const url = normalizeUrl(item.getAttribute('data-url'));
-        window.open(url, '_blank');
-      });
-    });
+  if (surpriseEnabled) {
+    setCurtain(0);
+  }
+});
 
-    // adjust position of settings dropdown (so it sits left of menu)
-    function positionSettingsDropdown(){
-      // it's positioned with CSS right:75px top:50px — should be fine; keep placeholder in case
-    }
+/* Blur toggle */
+blurButton.addEventListener("click", () => {
+  blurEnabled = !blurEnabled;
 
-    /**********************
-     * Settings actions
-     **********************/
-    openAccountBtn.addEventListener('click', ()=>{
-      window.open('https://sites.google.com/view/SailorsCo/accounts','_blank');
-    });
+  document.getElementById("mainHeading")
+    .classList.toggle("blurred", blurEnabled);
 
-    downloadExtensionBtn.addEventListener('click', ()=>{
-      window.open('https://sites.google.com/view/SailorsCo','_blank');
-    });
+  document.getElementById("settings")
+    .classList.toggle("blurred", blurEnabled);
 
-    // Reset behavior
-    resetSettingsBtn.addEventListener('click', ()=>{
-      if(!confirm('Reset all Sailors Browser settings to defaults?')) return;
-      Object.assign(state, defaultState);
-      state.uploadedWallpaper = null;
-      saveState();
-      applyAllSettings();
-    });
+  diceArea.classList.toggle("blurred", blurEnabled);
 
-    /**********************
-     * Appearance panel open/close
-     **********************/
-    openAppearanceBtn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      settingsDropdown.style.display = 'none';
-      appearancePanel.style.display = 'block';
-      // ensure theme select and mode select show current values
-      themeSelect.value = state.theme;
-      modeSelect.value = state.mode;
-      updateThemeOptionAvailability();
-      applyAllSettings();
-    });
-    appearanceClose.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      appearancePanel.style.display = 'none';
-      settingsDropdown.style.display = 'block';
-    });
+  blurButton.textContent = blurEnabled ? "Blur: ON" : "Blur: OFF";
+  blurButton.classList.toggle("active", blurEnabled);
+});
 
-    /**********************
-     * Search engine select population + behavior
-     **********************/
-    function populateSearchEngines(){
-      const engines = Object.keys(SEARCH_ENGINES);
-      searchEngineSelect.innerHTML = engines.map(e=>`<option value="${e}">${e}</option>`).join('');
-      // set selected
-      searchEngineSelect.value = state.searchEngine || defaultState.searchEngine;
-      // Also populate main settings dropdown (if any duplication not needed)
-      // When changed, save to state
-      searchEngineSelect.addEventListener('change', ()=>{
-        state.searchEngine = searchEngineSelect.value;
-        saveState();
-      });
+/* Surprise Reveal toggle */
+surpriseButton.addEventListener("click", () => {
+  surpriseEnabled = !surpriseEnabled;
+
+  surpriseButton.textContent = surpriseEnabled
+    ? "Surprise Reveal: ON"
+    : "Surprise Reveal: OFF";
+
+  surpriseButton.classList.toggle("active", surpriseEnabled);
+  surpriseControls.hidden = !surpriseEnabled;
+
+  if (surpriseEnabled && currentDice.length) {
+    setCurtain(0);
+    resultText.textContent = "Slide to reveal your colors!";
+  } else {
+    removeCurtain();
+  }
+});
+
+/* Black curtain */
+function setCurtain(value) {
+  let curtain = diceArea.querySelector(".dice-curtain");
+
+  if (!curtain) {
+    curtain = document.createElement("div");
+    curtain.className = "dice-curtain";
+    curtain.setAttribute("aria-hidden", "true");
+    diceArea.appendChild(curtain);
+  }
+
+  curtain.style.transform = `translateX(${value}%)`;
+}
+
+function removeCurtain() {
+  const curtain = diceArea.querySelector(".dice-curtain");
+  if (curtain) curtain.remove();
+}
+
+revealSlider.addEventListener("input", () => {
+  if (diceArea.querySelector(".dice-curtain")) {
+    setCurtain(revealSlider.value);
+  }
+
+  if (Number(revealSlider.value) >= 100) {
+    resultText.textContent = "All colors revealed!";
+  } else if (surpriseEnabled && currentDice.length) {
+    resultText.textContent = "Slide to reveal your colors!";
+  }
+});
+
+/* Roll dice with sound and a two-second delay */
+function rollDice() {
+  if (rollInProgress) return;
+
+  rollInProgress = true;
+  rollButton.disabled = true;
+  rollButton.style.opacity = ".7";
+
+  const token = ++rollToken;
+
+  rollSound.pause();
+  rollSound.currentTime = 0;
+  rollSound.play().catch(() => {});
+
+  const results = Array.from(
+    { length: Number(diceCount.value) },
+    () => colors[Math.floor(Math.random() * colors.length)]
+  );
+
+  removeCurtain();
+
+  if (surpriseEnabled) {
+    revealSlider.value = 0;
+    setCurtain(0);
+  }
+
+  diceArea.querySelectorAll(".dice").forEach(die => {
+    die.classList.add("rolling");
+  });
+
+  resultText.textContent = "Rolling...";
+
+  setTimeout(() => {
+    if (token !== rollToken) return;
+
+    currentDice = results;
+    createDice();
+
+    diceArea.classList.toggle("blurred", blurEnabled);
+
+    const names = currentDice.map(color => color.name);
+
+    if (surpriseEnabled) {
+      setCurtain(revealSlider.value);
+      resultText.textContent = "Your colors are hidden! Slide to reveal them.";
+    } else {
+      removeCurtain();
+      resultText.textContent = "You rolled: " + names.join(", ") + "!";
     }
 
-    /**********************
-     * Theme & Mode select handlers
-     **********************/
-    themeSelect.addEventListener('change', ()=>{
-      const selected = themeSelect.value;
-      // If user selects white but current wallpaper not allowed, prevent
-      if(selected === 'white' && ![0,1].includes(state.wallpaperIndex)){
-        alert('White theme is only available with the first or second wallpaper.');
-        // revert selection to previous
-        themeSelect.value = state.theme;
-        return;
-      }
-      state.theme = selected;
-      saveState();
-      applyTheme();
+    rollButton.textContent = "Roll Again";
+    rollButton.disabled = false;
+    rollButton.style.opacity = "1";
+    rollInProgress = false;
+
+    addHistory(names);
+  }, 2000);
+}
+
+rollButton.addEventListener("click", rollDice);
+
+/* Counter */
+function updateCounter() {
+  counterValue.textContent = number >= 0 ? "+" + number : String(number);
+}
+
+document.querySelectorAll("[data-change]").forEach(button => {
+  button.addEventListener("click", () => {
+    number += Number(button.dataset.change);
+    updateCounter();
+  });
+});
+
+/* Background selection */
+function setBackground(url) {
+  document.getElementById("background").style.backgroundImage =
+    `url("${url}")`;
+}
+
+backgroundChoice.addEventListener("change", () => {
+  const choice = backgroundChoice.value;
+
+  if (choice === "upload") {
+    backgroundUpload.click();
+  } else {
+    setBackground(backgrounds[choice]);
+  }
+});
+
+backgroundUpload.addEventListener("change", () => {
+  const file = backgroundUpload.files[0];
+
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("Please select a valid image.");
+    return;
+  }
+
+  if (uploadUrl) URL.revokeObjectURL(uploadUrl);
+
+  uploadUrl = URL.createObjectURL(file);
+  setBackground(uploadUrl);
+});
+
+/* Character images with fallback names */
+function setCharacter() {
+  const character = characters[characterChoice.value];
+
+  characterImage.style.display = "block";
+  characterFallback.style.display = "none";
+  characterImage.alt = character.name;
+  characterImage.onerror = () => {
+    characterImage.style.display = "none";
+    characterFallback.textContent = character.name;
+    characterFallback.style.display = "block";
+  };
+
+  characterImage.src = character.image;
+}
+
+characterChoice.addEventListener("change", setCharacter);
+
+/* Last ten rolls */
+function addHistory(names) {
+  history.unshift({
+    names: [...names],
+    number: number,
+    time: new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    })
+  });
+
+  history = history.slice(0, 10);
+  renderHistory();
+}
+
+function renderHistory() {
+  historyList.innerHTML = "";
+
+  if (!history.length) {
+    historyList.innerHTML =
+      '<div class="history-empty">Your last 10 rolls will appear here!</div>';
+    return;
+  }
+
+  history.forEach((entry, index) => {
+    const item = document.createElement("div");
+    item.className = "history-item";
+
+    const left = document.createElement("div");
+    left.className = "history-left";
+
+    const rollNo = document.createElement("span");
+    rollNo.textContent = "#" + (index + 1);
+    left.appendChild(rollNo);
+
+    entry.names.forEach(name => {
+      const color = colors.find(c => c.name === name);
+      if (!color) return;
+
+      const mini = document.createElement("span");
+      mini.className = "mini-dice " + color.className;
+      mini.title = name;
+      mini.setAttribute("aria-label", name);
+      left.appendChild(mini);
     });
 
-    modeSelect.addEventListener('change', ()=>{
-      state.mode = modeSelect.value;
-      saveState();
-      applyDarkOverlayIfNeeded();
-    });
+    const label = document.createElement("span");
+    label.textContent = entry.names.join(", ");
+    left.appendChild(label);
 
-    function applyAllSettings(){
-      // apply wallpaper
-      setBodyWallpaper();
-      // apply theme
-      applyTheme();
-      // mode
-      applyDarkOverlayIfNeeded();
-      // set UI selects
-      searchEngineSelect.value = state.searchEngine;
-      themeSelect.value = state.theme;
-      modeSelect.value = state.mode;
-      // update wallpaper thumbs selection border
-      updateWallpaperThumbSelection();
-    }
+    const right = document.createElement("div");
+    right.style.textAlign = "right";
 
-    /**********************
-     * Wallpaper selection / upload
-     **********************/
-    wallpaperThumbs.forEach(thumb=>{
-      thumb.addEventListener('click', ()=>{
-        const idx = Number(thumb.getAttribute('data-index'));
-        state.wallpaperIndex = idx;
-        // clear uploaded wallpaper if switching to default
-        saveState();
-        saveState();
-        saveState();
-        saveState();
-        saveState();
-        saveState();
-        saveState();
-        saveState();
-        state.uploadedWallpaper = state.uploadedWallpaper; // keep if any
-        saveState();
-        applyAllSettings();
-        updateThemeOptionAvailability();
-      });
-    });
+    const score = document.createElement("div");
+    score.className = "history-number";
+    score.textContent = entry.number >= 0
+      ? "+" + entry.number
+      : String(entry.number);
 
-    uploadInput.addEventListener('change', (e)=>{
-      const file = e.target.files && e.target.files[0];
-      if(!file) return;
-      const allowed = ['image/png','image/jpeg','image/jpg'];
-      if(!allowed.includes(file.type)){
-        alert('Only PNG/JPG/JPEG accepted.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function(evt){
-        const dataUrl = evt.target.result;
-        // store uploaded as wallpaperIndex 3 (custom)
-        state.uploadedWallpaper = dataUrl;
-        state.wallpaperIndex = 3; // custom
-        saveState();
-        applyAllSettings();
-        updateThemeOptionAvailability();
-      };
-      reader.readAsDataURL(file);
-    });
+    const time = document.createElement("small");
+    time.textContent = entry.time;
+    time.style.color = "#c5d1e8";
 
-    function updateWallpaperThumbSelection(){
-      wallpaperThumbs.forEach(t=>{
-        const idx = Number(t.getAttribute('data-index'));
-        if(idx === state.wallpaperIndex){
-          t.style.outline = `3px solid var(--outline-color)`;
-        } else {
-          t.style.outline = '2px solid #ddd';
-        }
-      });
-    }
+    right.appendChild(score);
+    right.appendChild(time);
+    item.appendChild(left);
+    item.appendChild(right);
+    historyList.appendChild(item);
+  });
+}
 
-    function updateThemeOptionAvailability(){
-      // White theme only allowed if wallpaperIndex is 0 or 1
-      const whiteOption = Array.from(themeSelect.options).find(o=>o.value==='white');
-      if(!whiteOption) return;
-      if([0,1].includes(state.wallpaperIndex)){
-        whiteOption.disabled = false;
-      } else {
-        // if currently white and not allowed, revert to purple
-        if(state.theme === 'white'){
-          state.theme = 'purple';
-          saveState();
-        }
-        whiteOption.disabled = true;
-        if(themeSelect.value === 'white') themeSelect.value = state.theme;
-      }
-    }
+document.getElementById("clearHistory").addEventListener("click", () => {
+  history = [];
+  renderHistory();
+});
 
-    /**********************
-     * Search form behavior
-     **********************/
-    searchForm.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const q = searchInput.value.trim();
-      if(!q) return;
-      // Use selected engine's template
-      const url = getSearchUrl(q);
-      window.location.href = url;
-    });
-
-    // suggestions behavior (Open as URL / search with active engine)
-    function showSuggestions(query){
-      if(!query){
-        suggestionsBox.style.display = 'none';
-        return;
-      }
-      suggestionsBox.innerHTML = `
-        <div id="openUrl">🔗 Open as URL (${query})</div>
-        <div id="engineSearch">🌐 Search with ${state.searchEngine || 'Google'}: ${query}</div>
-      `;
-      suggestionsBox.style.display = 'block';
-      document.getElementById('openUrl').onclick = ()=>{
-        const url = /^https?:\/\//i.test(query) ? query : 'https://' + query;
-        window.location.href = url;
-      };
-      document.getElementById('engineSearch').onclick = ()=>{
-        const url = getSearchUrl(query);
-        window.location.href = url;
-      };
-    }
-
-    searchInput.addEventListener('input', ()=> showSuggestions(searchInput.value.trim()) );
-    // hide suggestions when clicking outside search form
-    document.addEventListener('click', (e)=>{
-      if(!searchForm.contains(e.target)) suggestionsBox.style.display = 'none';
-    });
-
-    /**********************
-     * Voice recognition (as before)
-     **********************/
-    voiceButton.addEventListener('click', ()=>{
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if(!SpeechRecognition){
-        alert('Your browser does not support voice recognition.');
-        return;
-      }
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'en-US';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.start();
-      recognition.onresult = (ev)=>{
-        const text = ev.results[0][0].transcript;
-        searchInput.value = text;
-        showSuggestions(text);
-      };
-      recognition.onerror = (err)=> console.error('Speech recognition error:', err);
-    });
-
-    /**********************
-     * Shortcuts (re-using previous logic) 
-     **********************/
-    const defaultShortcuts = [
-      "https://youtube.com",
-      "https://chatgpt.com",
-      "https://sites.google.com/view/SailorsCo",
-      "https://news.google.com",
-      "https://github.com",
-      "https://chat.google.com",
-    ];
-    function loadShortcuts(){
-      let shortcuts = JSON.parse(localStorage.getItem('shortcuts') || 'null');
-      if(!shortcuts) {
-        shortcuts = defaultShortcuts.slice();
-        localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
-      }
-      renderShortcuts(shortcuts);
-    }
-    function renderShortcuts(shortcuts){
-      shortcutsContainer.innerHTML = '';
-      shortcuts.forEach((url, idx)=>{
-        const normalized = normalizeUrl(url);
-        const div = document.createElement('div');
-        div.className = 'shortcut';
-        // use google favicon service for domain
-        div.innerHTML = `<img src="https://www.google.com/s2/favicons?domain=${normalized}" alt="icon">`;
-        div.title = normalized;
-        div.addEventListener('click', ()=> window.open(normalized,'_blank') );
-
-        // Delete button logic: appears after 2 seconds continuous hover, hides immediately on leave
-        const del = document.createElement('button');
-        del.className = 'delete-btn';
-        del.textContent = 'Delete';
-        del.addEventListener('click', (e)=>{
-          e.stopPropagation();
-          shortcuts.splice(idx,1);
-          localStorage.setItem('shortcuts', JSON.stringify(shortcuts));
-          renderShortcuts(shortcuts);
-        });
-        div.appendChild(del);
-
-        let hoverTimer = null;
-        div.addEventListener('mouseenter', ()=>{
-          hoverTimer = setTimeout(()=> { del.style.display = 'block'; }, 2000);
-        });
-        div.addEventListener('mouseleave', ()=>{
-          clearTimeout(hoverTimer);
-          del.style.display = 'none';
-        });
-
-        shortcutsContainer.appendChild(div);
-      });
-
-      // Add button if less than 8
-      if(shortcuts.length < 8){
-        const addDiv = document.createElement('div');
-        addDiv.className = 'shortcut';
-        addDiv.innerHTML = `<img src="https://sailorsco.github.io/cdn/img/Plus-Icon.png" alt="Add">`;
-        addDiv.addEventListener('click', ()=>{
-          const newUrl = prompt('Enter the URL of the shortcut you want to add:');
-          if(!newUrl) return;
-          const arr = shortcuts.slice();
-          arr.push(normalizeUrl(newUrl));
-          if(arr.length > 8) { alert('Max 8 shortcuts'); return; }
-          localStorage.setItem('shortcuts', JSON.stringify(arr));
-          renderShortcuts(arr);
-        });
-        shortcutsContainer.appendChild(addDiv);
-      }
-    }
-
-    /**********************
-     * Initialization calls
-     **********************/
-    // populate search engines
-    populateSearchEngines();
-
-    // set selects to state values
-    themeSelect.value = state.theme;
-    modeSelect.value = state.mode;
-
-    // apply wallpaper & theme & overlay
-    setBodyWallpaper();
-    applyTheme();
-    updateThemeOptionAvailability();
-    updateWallpaperThumbSelection();
-
-    // load shortcuts
-    loadShortcuts();
-
-    /**********************
-     * Helpers: persist state when window unloaded (just in case)
-     **********************/
-    window.addEventListener('beforeunload', ()=>{
-      saveState();
-    });
-
-    /**********************
-     * Extra: Allow keyboard Esc to close dropdowns/panels
-     **********************/
-    document.addEventListener('keydown', (e)=>{
-      if(e.key === 'Escape'){
-        dropdownMenu.style.display = 'none';
-        settingsDropdown.style.display = 'none';
-        appearancePanel.style.display = 'none';
-        suggestionsBox.style.display = 'none';
-      }
-    });
-  </script>
+/* Initialize */
+createDice();
+setCharacter();
+updateCounter();
+renderHistory();
+</script>
 </body>
 </html>
